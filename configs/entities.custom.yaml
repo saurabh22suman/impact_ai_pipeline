@@ -1,0 +1,42 @@
+version: "2026-02-22"
+entities:
+  - id: nse-reliance
+    symbol: RELIANCE
+    name: Reliance Industries
+    aliases: ["Reliance", "RIL", "Reliance Industries"]
+    exchange: NSE
+    sector: Conglomerate
+    type: equity
+    enabled: false
+  - id: nse-hdfcbank
+    symbol: HDFCBANK
+    name: HDFC Bank
+    aliases: ["HDFC Bank", "HDFCBANK"]
+    exchange: NSE
+    sector: Banking
+    type: equity
+    enabled: false
+  - id: nse-infobean
+    symbol: INFOBEAN
+    name: InfoBeans Technologies
+    aliases: ["INFOBEAN", "InfoBeans", "InfoBeans Technologies"]
+    exchange: NSE
+    sector: IT
+    type: equity
+    enabled: true
+  - id: nse-index-niftit
+    symbol: NIFTIT
+    name: Nifty IT
+    aliases: ["NIFTIT", "Nifty IT"]
+    exchange: NSE
+    sector: Index
+    type: index
+    enabled: true
+  - id: nse-index-niftbank
+    symbol: NIFTBANK
+    name: Nifty Bank
+    aliases: ["NIFTBANK", "Nifty Bank"]
+    exchange: NSE
+    sector: Index
+    type: index
+    enabled: true

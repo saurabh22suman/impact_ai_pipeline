@@ -1,0 +1,27 @@
+version: "2026-02-22"
+factors:
+  - id: ai-capex
+    name: AI Capex
+    category: investment
+    keywords: ["ai capex", "gpu spend", "datacenter expansion", "capital expenditure"]
+    weight: 0.9
+  - id: ai-regulation
+    name: AI Regulation
+    category: policy
+    keywords: ["ai regulation", "compliance", "privacy law", "governance"]
+    weight: 1.0
+  - id: ai-demand
+    name: AI Demand Signal
+    category: demand
+    keywords: ["enterprise ai", "genai adoption", "ai contract", "model deployment"]
+    weight: 0.8
+  - id: ai-cost-pressure
+    name: AI Cost Pressure
+    category: margin
+    keywords: ["margin pressure", "compute cost", "inference cost", "pricing pressure"]
+    weight: 0.7
+  - id: ai-talent
+    name: AI Talent Dynamics
+    category: labor
+    keywords: ["ai hiring", "reskilling", "attrition", "wage inflation"]
+    weight: 0.6

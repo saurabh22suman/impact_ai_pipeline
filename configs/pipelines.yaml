@@ -1,0 +1,27 @@
+version: "2026-02-22"
+default_profile: cost_optimized
+profiles:
+  - name: cost_optimized
+    description: rule-heavy pipeline with selective LLM calls
+    ambiguity_threshold: 0.65
+    novelty_threshold: 0.70
+    min_relevance_score: 0.50
+    enable_raw_artifacts: false
+    llm_budget_tokens: 25000
+    session: nse
+  - name: balanced
+    description: mixed deterministic and llm refinement
+    ambiguity_threshold: 0.55
+    novelty_threshold: 0.60
+    min_relevance_score: 0.45
+    enable_raw_artifacts: true
+    llm_budget_tokens: 50000
+    session: nse
+  - name: high_recall
+    description: wider capture with larger llm budget
+    ambiguity_threshold: 0.45
+    novelty_threshold: 0.50
+    min_relevance_score: 0.35
+    enable_raw_artifacts: true
+    llm_budget_tokens: 90000
+    session: nse

@@ -1,0 +1,74 @@
+version: "2026-02-22"
+defaults:
+  routing_policy: lowest_cost_with_fallback
+  prompt_version: v1
+  circuit_breaker_failures: 3
+  circuit_breaker_seconds: 60
+  retry_count: 2
+  backoff_millis: 250
+providers:
+  - name: gemini
+    model: gemini-2.0-flash
+    enabled: true
+    price_per_1k_input: 0.0001
+    price_per_1k_output: 0.0004
+    max_input_tokens: 8192
+    max_output_tokens: 1024
+    timeout_seconds: 20
+    max_requests_per_min: 120
+  - name: anthropic
+    model: claude-sonnet-4.6
+    enabled: true
+    price_per_1k_input: 0.0030
+    price_per_1k_output: 0.0150
+    max_input_tokens: 8192
+    max_output_tokens: 1024
+    timeout_seconds: 20
+    max_requests_per_min: 60
+  - name: deepseek
+    model: deepseek-chat
+    enabled: true
+    price_per_1k_input: 0.0003
+    price_per_1k_output: 0.0006
+    max_input_tokens: 8192
+    max_output_tokens: 1024
+    timeout_seconds: 20
+    max_requests_per_min: 120
+  - name: openai
+    model: gpt-4o-mini
+    enabled: true
+    price_per_1k_input: 0.00015
+    price_per_1k_output: 0.0006
+    max_input_tokens: 8192
+    max_output_tokens: 1024
+    timeout_seconds: 20
+    max_requests_per_min: 120
+  - name: mimo
+    model: mimo-v2-flash
+    enabled: true
+    price_per_1k_input: 0.00005
+    price_per_1k_output: 0.0002
+    max_input_tokens: 8192
+    max_output_tokens: 1024
+    timeout_seconds: 20
+    max_requests_per_min: 180
+  - name: mimo
+    model: mimo-v2-synthetic
+    enabled: true
+    price_per_1k_input: 0.00004
+    price_per_1k_output: 0.00015
+    max_input_tokens: 8192
+    max_output_tokens: 1024
+    timeout_seconds: 20
+    max_requests_per_min: 180
+fallback_chain:
+  - mimo:mimo-v2-synthetic
+  - gemini:gemini-2.0-flash
+  - deepseek:deepseek-chat
+  - openai:gpt-4o-mini
+  - anthropic:claude-sonnet-4.6
+  - mimo:mimo-v2-flash
+per_run_token_budget: 120000
+per_provider_token_budget: 60000
+per_run_cost_budget_usd: 5.0
+per_provider_cost_budget_usd: 2.0

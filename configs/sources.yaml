@@ -1,0 +1,82 @@
+version: "2026-02-22"
+sources:
+    - id: bbc-business
+      name: BBC Business
+      kind: rss
+      url: https://feeds.bbci.co.uk/news/business/rss.xml
+      region: global
+      language: en
+      enabled: true
+      crawl_fallback: false
+    - id: bbc-technology
+      name: BBC Technology
+      kind: rss
+      url: https://feeds.bbci.co.uk/news/technology/rss.xml
+      region: global
+      language: en
+      enabled: true
+      crawl_fallback: false
+    - id: cnbc-world
+      name: CNBC World News
+      kind: rss
+      url: https://www.cnbc.com/id/100003114/device/rss/rss.html
+      region: global
+      language: en
+      enabled: true
+      crawl_fallback: false
+    - id: moneycontrol-markets
+      name: Moneycontrol Markets
+      kind: rss
+      url: https://www.moneycontrol.com/rss/MCtopnews.xml
+      region: india
+      language: en
+      enabled: true
+      crawl_fallback: true
+    - id: economic-times-markets
+      name: Economic Times Markets
+      kind: rss
+      url: https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms
+      region: india
+      language: en
+      enabled: true
+      crawl_fallback: true
+    - id: nyt-business
+      name: NYT Business
+      kind: rss
+      url: https://rss.nytimes.com/services/xml/rss/nyt/Business.xml
+      region: us
+      language: en
+      enabled: true
+      crawl_fallback: false
+    - id: nyt-technology
+      name: NYT Technology
+      kind: rss
+      url: https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml
+      region: us
+      language: en
+      enabled: true
+      crawl_fallback: false
+    - id: guardian-business
+      name: The Guardian Business
+      kind: rss
+      url: https://www.theguardian.com/uk/business/rss
+      region: global
+      language: en
+      enabled: true
+      crawl_fallback: false
+    - id: guardian-technology
+      name: The Guardian Technology
+      kind: rss
+      url: https://www.theguardian.com/uk/technology/rss
+      region: global
+      language: en
+      enabled: true
+      crawl_fallback: false
+    - id: marketwatch-topstories
+      name: MarketWatch Top Stories
+      kind: rss
+      url: https://feeds.marketwatch.com/marketwatch/topstories/
+      region: us
+      language: en
+      enabled: true
+      crawl_fallback: false

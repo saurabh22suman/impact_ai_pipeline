@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Impact Scrapper</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="header">
+        <h1>AI Impact Scrapper</h1>
+        <p class="subtitle">Internal pipeline control panel</p>
+      </header>
+
+      <section class="status-grid" id="status-grid">
+        <article class="card">
+          <h2>Health</h2>
+          <p id="health-status">Loading...</p>
+        </article>
+        <article class="card">
+          <h2>Config</h2>
+          <p id="config-version">Loading...</p>
+        </article>
+        <article class="card">
+          <h2>Enabled Sources</h2>
+          <p id="sources-enabled">-</p>
+        </article>
+        <article class="card">
+          <h2>Profiles</h2>
+          <p id="profiles-count">-</p>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Run now</h2>
+          <p id="run-submit-status" class="muted"></p>
+        </div>
+        <form id="run-form" class="run-form">
+          <label>
+            Pipeline profile
+            <input type="text" name="pipeline_profile" placeholder="cost_optimized" />
+          </label>
+
+          <label class="selector-label">
+            Sources (multi-select)
+            <div id="sources-selector" class="multi-selector" data-selector="sources">
+              <input type="search" id="sources-search" class="selector-search" placeholder="Search sources by id, name, region, kind" autocomplete="off" />
+              <div class="multi-select-actions">
+                <button type="button" id="sources-select-all">Select all</button>
+                <button type="button" id="sources-clear">Clear</button>
+              </div>
+              <div id="sources-options" class="selector-options" role="listbox" aria-multiselectable="true"></div>
+            </div>
+            <span class="field-hint">Leave empty to use all enabled sources.</span>
+          </label>
+
+          <label class="selector-label">
+            Entities (multi-select)
+            <div id="entities-selector" class="multi-selector" data-selector="entities">
+              <input type="search" id="entities-search" class="selector-search" placeholder="Search entities by symbol, name, alias, sector, type" autocomplete="off" />
+              <div class="multi-select-actions">
+                <button type="button" id="entities-select-all">Select all</button>
+                <button type="button" id="entities-clear">Clear</button>
+              </div>
+              <div id="entities-options" class="selector-options" role="listbox" aria-multiselectable="true"></div>
+            </div>
+            <span class="field-hint">Leave empty to include all entities.</span>
+          </label>
+
+          <label>
+            Date from (UTC)
+            <input type="datetime-local" name="date_from" />
+          </label>
+          <label>
+            Date to (UTC)
+            <input type="datetime-local" name="date_to" />
+          </label>
+          <button type="submit" id="run-submit-btn">Trigger run</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Add source</h2>
+          <p id="source-submit-status" class="muted"></p>
+        </div>
+        <form id="source-form" class="run-form">
+          <label>
+            Source ID
+            <input type="text" name="id" placeholder="moneycontrol-tech" required />
+          </label>
+          <label>
+            Name
+            <input type="text" name="name" placeholder="Moneycontrol Technology" required />
+          </label>
+          <label>
+            Kind
+            <select name="kind" required>
+              <option value="rss">rss</option>
+              <option value="direct">direct</option>
+            </select>
+          </label>
+          <label>
+            URL
+            <input type="url" name="url" placeholder="https://example.com/feed.xml" required />
+          </label>
+          <label>
+            Region
+            <input type="text" name="region" placeholder="india" required />
+          </label>
+          <label>
+            Language
+            <input type="text" name="language" placeholder="en" required />
+          </label>
+          <label class="inline-checkbox">
+            <input type="checkbox" name="enabled" checked />
+            Enabled
+          </label>
+          <label class="inline-checkbox">
+            <input type="checkbox" name="crawl_fallback" />
+            Crawl fallback
+          </label>
+          <button type="submit" id="source-submit-btn">Add source</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Bhavcopy download</h2>
+          <p id="bhavcopy-status" class="muted"></p>
+        </div>
+        <form id="bhavcopy-form" class="run-form">
+          <label>
+            Trade date (UTC)
+            <input type="date" id="bhavcopy-date" name="bhavcopy_date" required />
+            <span class="field-hint">Bhavcopy is downloadable after T+2.</span>
+          </label>
+          <button type="submit" id="bhavcopy-download-btn">Download bhavcopy</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Runs</h2>
+          <button id="refresh-btn" type="button">Refresh</button>
+        </div>
+        <div id="runs-state" class="muted">Loading runs...</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Status</th>
+                <th>Profile</th>
+                <th>Created</th>
+                <th>Events</th>
+                <th>Features</th>
+                <th>Cost (USD)</th>
+              </tr>
+            </thead>
+            <tbody id="runs-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel" id="details-panel">
+        <div class="panel-header">
+          <h2>Run details</h2>
+          <span id="details-run-id" class="muted">No run selected</span>
+        </div>
+        <div id="details-content" class="muted">Select a run to inspect details and download exports.</div>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
