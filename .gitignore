@@ -1,0 +1,19 @@
+bin/
+dist/
+coverage.out
+*.test
+*.out
+*.log
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Go
+vendor/
+
+# Local environment secrets
+.env
+.env.*
+!.env.example
