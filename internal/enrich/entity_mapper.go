@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/soloengine/ai-impact-scrapper/internal/config"
+	"github.com/soloengine/ai-impact-scrapper/internal/entitymatch"
 )
 
 type EntityMapper struct {
@@ -20,22 +21,8 @@ func (m EntityMapper) Map(article Article) []EntityMatch {
 	seen := map[string]struct{}{}
 
 	for _, entity := range m.entities {
-		if !entity.Enabled {
-			continue
-		}
-		confidence := 0.0
-		if strings.Contains(text, strings.ToLower(entity.Name)) {
-			confidence = 0.95
-		}
-		if strings.Contains(text, strings.ToLower(entity.Symbol)) && confidence < 0.90 {
-			confidence = 0.9
-		}
-		for _, alias := range entity.Aliases {
-			if alias != "" && strings.Contains(text, strings.ToLower(alias)) && confidence < 0.85 {
-				confidence = 0.85
-			}
-		}
-		if confidence == 0 {
+		matched, confidence, method := entitymatch.MatchEntity(text, entity)
+		if !matched {
 			continue
 		}
 		if _, ok := seen[entity.ID]; ok {
@@ -47,7 +34,7 @@ func (m EntityMapper) Map(article Article) []EntityMatch {
 			Symbol:     entity.Symbol,
 			Name:       entity.Name,
 			Confidence: confidence,
-			Method:     "keyword_match",
+			Method:     method,
 		})
 	}
 

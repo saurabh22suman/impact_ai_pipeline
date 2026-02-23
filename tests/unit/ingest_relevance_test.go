@@ -53,6 +53,17 @@ func TestRelevanceGateScoresExpectedRange(t *testing.T) {
 	}
 }
 
+func TestRelevanceGateDoesNotMatchSymbolInsideLargerWord(t *testing.T) {
+	gate := ingest.NewRelevanceGate()
+	article := core.Article{Title: "Infytech demand rises", Summary: "", Body: ""}
+	entities := []config.Entity{{Name: "Infosys", Symbol: "INFY", Aliases: []string{"INFY"}, Enabled: true}}
+
+	score := gate.Score(article, nil, entities)
+	if score != 0 {
+		t.Fatalf("expected no INFY entity hit from Infytech, got %.4f", score)
+	}
+}
+
 func TestParseTOONSupportsJSONLines(t *testing.T) {
 	input := []byte("{\"id\":\"a1\",\"source_id\":\"s\",\"source_name\":\"S\",\"url\":\"https://x\",\"title\":\"T\",\"summary\":\"S\",\"body\":\"B\",\"language\":\"en\",\"region\":\"india\",\"published_at\":\"2026-02-22T12:00:00Z\"}\n{\"id\":\"a2\",\"source_id\":\"s\",\"source_name\":\"S\",\"url\":\"https://y\",\"title\":\"T2\",\"summary\":\"S2\",\"body\":\"B2\",\"language\":\"en\",\"region\":\"india\",\"published_at\":\"2026-02-22T12:05:00Z\"}")
 

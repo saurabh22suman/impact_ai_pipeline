@@ -5,6 +5,7 @@ import (
 
 	"github.com/soloengine/ai-impact-scrapper/internal/config"
 	"github.com/soloengine/ai-impact-scrapper/internal/core"
+	"github.com/soloengine/ai-impact-scrapper/internal/entitymatch"
 )
 
 type RelevanceGate struct{}
@@ -32,15 +33,8 @@ func (r RelevanceGate) Score(article core.Article, factors []config.Factor, enti
 
 	entityHits := 0
 	for _, entity := range entities {
-		if strings.Contains(text, strings.ToLower(entity.Name)) {
+		if matched, _, _ := entitymatch.MatchEntity(text, entity); matched {
 			entityHits++
-			continue
-		}
-		for _, alias := range entity.Aliases {
-			if alias != "" && strings.Contains(text, strings.ToLower(alias)) {
-				entityHits++
-				break
-			}
 		}
 	}
 
