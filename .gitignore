@@ -17,3 +17,6 @@ vendor/
 .env
 .env.*
 !.env.example
+
+# Local git worktrees
+.worktrees/
