@@ -188,7 +188,40 @@ func normalizeURL(raw *url.URL) string {
 	}
 	normalized := *raw
 	normalized.Fragment = ""
+	normalized.RawQuery = normalizeTrackingQuery(normalized.Query()).Encode()
 	return normalized.String()
+}
+
+func normalizeTrackingQuery(values url.Values) url.Values {
+	if len(values) == 0 {
+		return values
+	}
+	out := url.Values{}
+	for key, v := range values {
+		if isTrackingQueryKey(key) {
+			continue
+		}
+		copied := make([]string, len(v))
+		copy(copied, v)
+		out[key] = copied
+	}
+	return out
+}
+
+func isTrackingQueryKey(key string) bool {
+	k := strings.ToLower(strings.TrimSpace(key))
+	if k == "" {
+		return false
+	}
+	if strings.HasPrefix(k, "utm_") {
+		return true
+	}
+	switch k {
+	case "fbclid", "gclid", "dclid", "mc_cid", "mc_eid", "igshid", "mkt_tok":
+		return true
+	default:
+		return false
+	}
 }
 
 func isShareSocialTrackerURL(target *url.URL) bool {
@@ -197,8 +230,6 @@ func isShareSocialTrackerURL(target *url.URL) bool {
 	}
 	host := strings.ToLower(target.Hostname())
 	path := strings.ToLower(target.Path)
-	query := strings.ToLower(target.RawQuery)
-
 	socialHosts := []string{
 		"twitter.com", "x.com", "facebook.com", "linkedin.com", "instagram.com",
 		"t.me", "telegram.me", "reddit.com", "pinterest.com", "whatsapp.com",
@@ -216,13 +247,6 @@ func isShareSocialTrackerURL(target *url.URL) bool {
 	trackerHostMarkers := []string{"doubleclick", "googlesyndication", "adservice", "analytics", "tracker", "track"}
 	for _, marker := range trackerHostMarkers {
 		if strings.Contains(host, marker) {
-			return true
-		}
-	}
-
-	trackerQueryMarkers := []string{"utm_", "fbclid", "gclid", "mc_cid", "mc_eid"}
-	for _, marker := range trackerQueryMarkers {
-		if strings.Contains(query, marker) {
 			return true
 		}
 	}

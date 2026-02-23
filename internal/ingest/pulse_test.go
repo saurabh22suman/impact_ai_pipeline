@@ -145,6 +145,54 @@ func TestPulseFetcherSkipsShareLinks(t *testing.T) {
 	}
 }
 
+func TestPulseFetcherPreservesPublisherLinksWithTrackingParams(t *testing.T) {
+	listingURL := "https://pulse.example.com/listing"
+	publisherURLWithTracking := "https://publisher.example.com/story-3?utm_source=pulse&utm_medium=social&fbclid=abc123"
+	normalizedPublisherURL := "https://publisher.example.com/story-3"
+
+	client := &stubHTTPClient{responses: map[string]stubHTTPResponse{
+		listingURL: {
+			status: http.StatusOK,
+			body: `<html><body>
+				<a href="` + publisherURLWithTracking + `">Publisher Story</a>
+			</body></html>`,
+		},
+		normalizedPublisherURL: {
+			status: http.StatusOK,
+			body: `<html>
+				<head><title>Publisher Story Three</title></head>
+				<body><article><p>Publisher article body content three.</p></article></body>
+			</html>`,
+		},
+	}}
+
+	fetcher := NewPulseFetcher(client, nil)
+	articles, err := fetcher.Fetch(context.Background(), config.Source{
+		ID:       "pulse-3",
+		Name:     "Pulse Feed",
+		Kind:     config.SourceKindPulse,
+		URL:      listingURL,
+		Region:   "india",
+		Language: "en",
+	})
+	if err != nil {
+		t.Fatalf("fetch pulse: %v", err)
+	}
+
+	if len(articles) != 1 {
+		t.Fatalf("expected 1 article, got %d", len(articles))
+	}
+	if articles[0].URL != normalizedPublisherURL {
+		t.Fatalf("expected normalized publisher URL %s, got %s", normalizedPublisherURL, articles[0].URL)
+	}
+	if !containsString(client.calls, normalizedPublisherURL) {
+		t.Fatalf("expected fetch call to normalized publisher URL, calls=%v", client.calls)
+	}
+	if containsString(client.calls, publisherURLWithTracking) {
+		t.Fatalf("expected tracking-parameter URL to be normalized before fetch, calls=%v", client.calls)
+	}
+}
+
 func TestPulseFetcherRejectsUnsupportedKind(t *testing.T) {
 	fetcher := NewPulseFetcher(&http.Client{Timeout: 200 * time.Millisecond}, nil)
 	_, err := fetcher.Fetch(context.Background(), config.Source{Kind: config.SourceKindRSS})
