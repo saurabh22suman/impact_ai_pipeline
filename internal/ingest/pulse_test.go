@@ -12,6 +12,22 @@ import (
 	"github.com/soloengine/ai-impact-scrapper/internal/config"
 )
 
+type stubBrowserExtractor struct {
+	title string
+	summary string
+	body string
+	err error
+	calls []string
+}
+
+func (s *stubBrowserExtractor) Extract(_ context.Context, pageURL string) (string, string, string, error) {
+	s.calls = append(s.calls, pageURL)
+	if s.err != nil {
+		return "", "", "", s.err
+	}
+	return s.title, s.summary, s.body, nil
+}
+
 type stubHTTPResponse struct {
 	status int
 	body   string
@@ -190,6 +206,96 @@ func TestPulseFetcherPreservesPublisherLinksWithTrackingParams(t *testing.T) {
 	}
 	if containsString(client.calls, publisherURLWithTracking) {
 		t.Fatalf("expected tracking-parameter URL to be normalized before fetch, calls=%v", client.calls)
+	}
+}
+
+func TestPulseFetcherUsesBrowserFallbackForThinContent(t *testing.T) {
+	cases := []struct {
+		name               string
+		publisherHTML      string
+		expectedTitle      string
+		expectedSummary    string
+		expectedBody       string
+		expectedCallCount  int
+		expectedArticleCnt int
+	}{
+		{
+			name: "thin readability body",
+			publisherHTML: `<html>
+				<head><title>Thin Article</title></head>
+				<body><article><p>short body</p></article></body>
+			</html>`,
+			expectedTitle:      "Browser Extracted Title",
+			expectedSummary:    "Browser extracted summary",
+			expectedBody:       "Browser extracted body with sufficiently rich content to replace thin readability text.",
+			expectedCallCount:  1,
+			expectedArticleCnt: 1,
+		},
+		{
+			name:               "empty readability content",
+			publisherHTML:      `<html><body></body></html>`,
+			expectedTitle:      "Browser Extracted Title",
+			expectedSummary:    "Browser extracted summary",
+			expectedBody:       "Browser extracted body with sufficiently rich content to replace thin readability text.",
+			expectedCallCount:  1,
+			expectedArticleCnt: 1,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			listingURL := "https://pulse.example.com/listing"
+			publisherURL := "https://publisher.example.com/story-thin"
+
+			client := &stubHTTPClient{responses: map[string]stubHTTPResponse{
+				listingURL: {
+					status: http.StatusOK,
+					body: `<html><body><a href="` + publisherURL + `">Publisher Story</a></body></html>`,
+				},
+				publisherURL: {
+					status: http.StatusOK,
+					body:   tc.publisherHTML,
+				},
+			}}
+
+			fallback := &stubBrowserExtractor{
+				title:   "Browser Extracted Title",
+				summary: "Browser extracted summary",
+				body:    "Browser extracted body with sufficiently rich content to replace thin readability text.",
+			}
+
+			fetcher := NewPulseFetcher(client, fallback)
+			articles, err := fetcher.Fetch(context.Background(), config.Source{
+				ID:       "pulse-fallback",
+				Name:     "Pulse Feed",
+				Kind:     config.SourceKindPulse,
+				URL:      listingURL,
+				Region:   "india",
+				Language: "en",
+			})
+			if err != nil {
+				t.Fatalf("fetch pulse: %v", err)
+			}
+
+			if len(articles) != tc.expectedArticleCnt {
+				t.Fatalf("expected %d articles, got %d", tc.expectedArticleCnt, len(articles))
+			}
+			if len(fallback.calls) != tc.expectedCallCount || (tc.expectedCallCount > 0 && fallback.calls[0] != publisherURL) {
+				t.Fatalf("expected browser fallback called %d times for %s, calls=%v", tc.expectedCallCount, publisherURL, fallback.calls)
+			}
+			if tc.expectedArticleCnt == 0 {
+				return
+			}
+			if articles[0].Title != tc.expectedTitle {
+				t.Fatalf("expected fallback title %q, got %q", tc.expectedTitle, articles[0].Title)
+			}
+			if articles[0].Summary != tc.expectedSummary {
+				t.Fatalf("expected fallback summary %q, got %q", tc.expectedSummary, articles[0].Summary)
+			}
+			if articles[0].Body != tc.expectedBody {
+				t.Fatalf("expected fallback body %q, got %q", tc.expectedBody, articles[0].Body)
+			}
+		})
 	}
 }
 

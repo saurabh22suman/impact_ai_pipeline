@@ -18,10 +18,6 @@ import (
 	"github.com/soloengine/ai-impact-scrapper/internal/core"
 )
 
-type BrowserContentExtractor interface {
-	Extract(ctx context.Context, pageURL string) (string, error)
-}
-
 type PulseFetcher struct {
 	client            HTTPClient
 	browserFallback   BrowserContentExtractor
@@ -85,6 +81,20 @@ func (f *PulseFetcher) Fetch(ctx context.Context, source config.Source) ([]core.
 		title := strings.TrimSpace(parsed.Title)
 		body := strings.TrimSpace(parsed.TextContent)
 		summary := strings.TrimSpace(parsed.Excerpt)
+
+		if (body == "" || len(body) < 200) && f.browserFallback != nil {
+			fbTitle, fbSummary, fbBody, fbErr := f.browserFallback.Extract(ctx, link)
+			if fbErr == nil && strings.TrimSpace(fbBody) != "" {
+				if strings.TrimSpace(fbTitle) != "" {
+					title = strings.TrimSpace(fbTitle)
+				}
+				if strings.TrimSpace(fbSummary) != "" {
+					summary = strings.TrimSpace(fbSummary)
+				}
+				body = strings.TrimSpace(fbBody)
+			}
+		}
+
 		if title == "" && body == "" {
 			continue
 		}
