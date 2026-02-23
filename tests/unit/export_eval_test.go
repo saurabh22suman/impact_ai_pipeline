@@ -27,10 +27,13 @@ func TestExporterOutputsJSONLCSVTOON(t *testing.T) {
 		t.Fatalf("csv export failed: %v", err)
 	}
 	csvStr := string(csvData)
-	for _, key := range []string{"run_id", "config_version", "pipeline_profile", "provider", "model", "prompt_version"} {
+	for _, key := range []string{"run_id", "pipeline_profile", "provider", "model", "prompt_version"} {
 		if !strings.Contains(csvStr, key) {
 			t.Fatalf("csv missing provenance column %s", key)
 		}
+	}
+	if strings.Contains(csvStr, "config_version") {
+		t.Fatalf("csv should not include config_version")
 	}
 
 	toon, err := exp.TOON([]core.MarketAlignedEvent{event})

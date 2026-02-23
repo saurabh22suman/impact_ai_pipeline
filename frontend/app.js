@@ -298,7 +298,6 @@ function renderDetails(run) {
     <div class="detail-grid">
       <div class="detail-item"><h3>Status</h3><p>${statusBadge(run.status)}</p></div>
       <div class="detail-item"><h3>Profile</h3><p>${escapeHtml(run.profile || "-")}</p></div>
-      <div class="detail-item"><h3>Config version</h3><p>${escapeHtml(run.config_version || "-")}</p></div>
       <div class="detail-item"><h3>Created at</h3><p>${escapeHtml(formatDate(run.created_at))}</p></div>
       <div class="detail-item"><h3>Started at</h3><p>${escapeHtml(formatDate(run.started_at))}</p></div>
       <div class="detail-item"><h3>Finished at</h3><p>${escapeHtml(formatDate(run.finished_at))}</p></div>

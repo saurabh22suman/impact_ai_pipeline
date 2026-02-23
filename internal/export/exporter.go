@@ -32,7 +32,7 @@ func (e Exporter) CSV(rows []core.FeatureRow) ([]byte, error) {
 	buf := bytes.NewBuffer(nil)
 	writer := csv.NewWriter(buf)
 	headers := []string{
-		"run_id", "config_version", "pipeline_profile", "provider", "model", "prompt_version",
+		"run_id", "pipeline_profile", "provider", "model", "prompt_version",
 		"article_id", "symbol", "session_date", "session_label", "sentiment_score", "relevance_score",
 		"factor_vector", "input_tokens", "output_tokens", "estimated_cost_usd",
 	}
@@ -43,7 +43,6 @@ func (e Exporter) CSV(rows []core.FeatureRow) ([]byte, error) {
 	for _, row := range rows {
 		rec := []string{
 			row.RunID,
-			row.ConfigVersion,
 			row.PipelineProfile,
 			row.Provider,
 			row.Model,
