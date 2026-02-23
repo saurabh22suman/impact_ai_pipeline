@@ -98,6 +98,27 @@ func TestLoadConfigDefaultsEmptySourceKindToRSS(t *testing.T) {
 	}
 }
 
+func TestDefaultConfigIncludesZerodhaPulseSource(t *testing.T) {
+	cfg, err := config.Load(filepath.Join("..", "..", "configs"))
+	if err != nil {
+		t.Fatalf("load config: %v", err)
+	}
+
+	found := false
+	for _, source := range cfg.Sources.Sources {
+		if source.ID != "zerodha-pulse" {
+			continue
+		}
+		found = true
+		if source.Kind != config.SourceKindPulse {
+			t.Fatalf("expected zerodha-pulse kind %q, got %q", config.SourceKindPulse, source.Kind)
+		}
+	}
+	if !found {
+		t.Fatalf("expected zerodha-pulse in default sources")
+	}
+}
+
 func TestLoadConfigRejectsSourceWithMissingRequiredFields(t *testing.T) {
 	dir := t.TempDir()
 	writeBaseConfigFiles(t, dir)

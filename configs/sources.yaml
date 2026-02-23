@@ -80,3 +80,11 @@ sources:
       language: en
       enabled: true
       crawl_fallback: false
+    - id: zerodha-pulse
+      name: Zerodha Pulse
+      kind: pulse
+      url: https://pulse.zerodha.com/
+      region: india
+      language: en
+      enabled: true
+      crawl_fallback: false
