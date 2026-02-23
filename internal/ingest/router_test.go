@@ -29,7 +29,8 @@ func (s *stubSourceFetcher) Fetch(_ context.Context, source config.Source) ([]co
 func TestRouterDispatchesBySourceKind(t *testing.T) {
 	rss := &stubSourceFetcher{articles: []core.Article{{Title: "rss article"}}}
 	direct := &stubSourceFetcher{articles: []core.Article{{Title: "direct article"}}}
-	router := NewRouterFetcher(rss, direct)
+	pulse := &stubSourceFetcher{articles: []core.Article{{Title: "pulse article"}}}
+	router := NewRouterFetcher(rss, direct, pulse)
 
 	rssArticles, rssNotices, err := router.FetchWithNotices(context.Background(), config.Source{ID: "rss-source", Kind: config.SourceKindRSS})
 	if err != nil {
@@ -47,6 +48,9 @@ func TestRouterDispatchesBySourceKind(t *testing.T) {
 	if direct.calls != 0 {
 		t.Fatalf("expected direct fetcher not called for rss source, got %d", direct.calls)
 	}
+	if pulse.calls != 0 {
+		t.Fatalf("expected pulse fetcher not called for rss source, got %d", pulse.calls)
+	}
 
 	directArticles, directNotices, err := router.FetchWithNotices(context.Background(), config.Source{ID: "direct-source", Kind: config.SourceKindDirect})
 	if err != nil {
@@ -61,10 +65,37 @@ func TestRouterDispatchesBySourceKind(t *testing.T) {
 	if direct.calls != 1 {
 		t.Fatalf("expected direct fetcher called once, got %d", direct.calls)
 	}
+	if pulse.calls != 0 {
+		t.Fatalf("expected pulse fetcher not called for direct source, got %d", pulse.calls)
+	}
+}
+
+func TestRouterDispatchesPulseKind(t *testing.T) {
+	rss := &stubSourceFetcher{}
+	direct := &stubSourceFetcher{}
+	pulse := &stubSourceFetcher{articles: []core.Article{{Title: "pulse article"}}}
+	router := NewRouterFetcher(rss, direct, pulse)
+
+	articles, notices, err := router.FetchWithNotices(context.Background(), config.Source{ID: "zerodha-pulse", Kind: config.SourceKindPulse})
+	if err != nil {
+		t.Fatalf("fetch pulse source: %v", err)
+	}
+	if len(notices) != 0 {
+		t.Fatalf("expected no notices for pulse success, got %v", notices)
+	}
+	if len(articles) != 1 || articles[0].Title != "pulse article" {
+		t.Fatalf("unexpected pulse articles: %+v", articles)
+	}
+	if pulse.calls != 1 {
+		t.Fatalf("expected pulse fetcher called once, got %d", pulse.calls)
+	}
+	if rss.calls != 0 || direct.calls != 0 {
+		t.Fatalf("expected rss/direct not called for pulse, got rss=%d direct=%d", rss.calls, direct.calls)
+	}
 }
 
 func TestRouterRejectsUnknownKind(t *testing.T) {
-	router := NewRouterFetcher(&stubSourceFetcher{}, &stubSourceFetcher{})
+	router := NewRouterFetcher(&stubSourceFetcher{}, &stubSourceFetcher{}, &stubSourceFetcher{})
 	_, _, err := router.FetchWithNotices(context.Background(), config.Source{ID: "source-1", Kind: "atom"})
 	if err == nil {
 		t.Fatalf("expected error for unknown source kind")
@@ -77,7 +108,7 @@ func TestRouterRejectsUnknownKind(t *testing.T) {
 func TestRouterFallsBackToDirectWhenRSSFails(t *testing.T) {
 	rss := &stubSourceFetcher{err: errors.New("rss fetch failed")}
 	direct := &stubSourceFetcher{articles: []core.Article{{Title: "from direct fallback"}}}
-	router := NewRouterFetcher(rss, direct)
+	router := NewRouterFetcher(rss, direct, &stubSourceFetcher{})
 
 	articles, notices, err := router.FetchWithNotices(context.Background(), config.Source{ID: "source-1", Kind: config.SourceKindRSS, CrawlFallback: true})
 	if err != nil {
@@ -97,7 +128,7 @@ func TestRouterFallsBackToDirectWhenRSSFails(t *testing.T) {
 func TestRouterReportsFallbackFailure(t *testing.T) {
 	rss := &stubSourceFetcher{err: errors.New("rss fetch failed")}
 	direct := &stubSourceFetcher{err: errors.New("direct fetch failed")}
-	router := NewRouterFetcher(rss, direct)
+	router := NewRouterFetcher(rss, direct, &stubSourceFetcher{})
 
 	_, notices, err := router.FetchWithNotices(context.Background(), config.Source{ID: "source-1", Kind: config.SourceKindRSS, CrawlFallback: true})
 	if err == nil {
