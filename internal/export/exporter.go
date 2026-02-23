@@ -71,7 +71,6 @@ func (e Exporter) TOON(events []core.MarketAlignedEvent) ([]byte, error) {
 	// Compatibility mode: TOON edge format represented as line-delimited JSON objects.
 	type toonEvent struct {
 		RunID           string   `json:"run_id"`
-		ConfigVersion   string   `json:"config_version"`
 		PipelineProfile string   `json:"pipeline_profile"`
 		Provider        string   `json:"provider"`
 		Model           string   `json:"model"`
@@ -109,7 +108,6 @@ func (e Exporter) TOON(events []core.MarketAlignedEvent) ([]byte, error) {
 
 		row := toonEvent{
 			RunID:           event.Event.Metadata.RunID,
-			ConfigVersion:   event.Event.Metadata.ConfigVersion,
 			PipelineProfile: event.Event.Metadata.PipelineProfile,
 			Provider:        event.Event.Metadata.Provider,
 			Model:           event.Event.Metadata.Model,

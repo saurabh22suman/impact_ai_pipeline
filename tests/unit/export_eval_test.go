@@ -41,6 +41,9 @@ func TestExporterOutputsJSONLCSVTOON(t *testing.T) {
 	if !strings.Contains(toonStr, `"run_id":"run-1"`) || !strings.Contains(toonStr, `"prompt_version":"v1"`) {
 		t.Fatalf("toon missing required provenance fields")
 	}
+	if strings.Contains(toonStr, `"config_version"`) {
+		t.Fatalf("toon should not include config_version")
+	}
 }
 
 func TestBuildPurgedWalkForwardWithEmbargo(t *testing.T) {

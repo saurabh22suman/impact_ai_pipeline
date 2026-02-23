@@ -18,7 +18,6 @@ const state = {
 
 const elements = {
   healthStatus: document.getElementById("health-status"),
-  configVersion: document.getElementById("config-version"),
   sourcesEnabled: document.getElementById("sources-enabled"),
   profilesCount: document.getElementById("profiles-count"),
   runForm: document.getElementById("run-form"),
@@ -335,7 +334,6 @@ async function loadSummary() {
     const [health, config] = await Promise.all([api("/health"), api("/v1/config")]);
     elements.healthStatus.textContent = health.status === "ok" ? "OK" : "Unavailable";
     elements.healthStatus.style.color = health.status === "ok" ? "var(--ok)" : "var(--error)";
-    elements.configVersion.textContent = config.config_version || "-";
     elements.sourcesEnabled.textContent = String(config.sources_enabled ?? "-");
     elements.profilesCount.textContent = String((config.profiles || []).length);
 
@@ -355,7 +353,6 @@ async function loadSummary() {
   } catch (err) {
     elements.healthStatus.textContent = "Error";
     elements.healthStatus.style.color = "var(--error)";
-    elements.configVersion.textContent = "Failed to load";
     elements.sourcesEnabled.textContent = "-";
     elements.profilesCount.textContent = "-";
     state.availableSources = [];
