@@ -136,7 +136,7 @@ func normalizeAndValidate(input CreateSourceInput) (config.Source, error) {
 	}
 
 	switch source.Kind {
-	case config.SourceKindRSS, config.SourceKindDirect:
+	case config.SourceKindRSS, config.SourceKindDirect, config.SourceKindPulse:
 	default:
 		return config.Source{}, ValidationError{Message: fmt.Sprintf("unsupported kind %q", source.Kind)}
 	}

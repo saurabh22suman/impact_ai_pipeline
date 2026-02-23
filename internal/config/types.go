@@ -10,6 +10,7 @@ import (
 const (
 	SourceKindRSS    = "rss"
 	SourceKindDirect = "direct"
+	SourceKindPulse  = "pulse"
 
 	EntityTypeEquity = "equity"
 	EntityTypeIndex  = "index"

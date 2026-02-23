@@ -64,6 +64,23 @@ func TestLoadConfigRejectsInvalidSourceKind(t *testing.T) {
 	}
 }
 
+func TestLoadConfigAcceptsPulseSourceKind(t *testing.T) {
+	dir := t.TempDir()
+	writeBaseConfigFiles(t, dir)
+	mustWrite(t, dir, "sources.yaml", "version: v1\nsources:\n  - id: pulse-a\n    name: Pulse A\n    kind: pulse\n    url: https://example.com/pulse\n    region: global\n    language: en\n    enabled: true\n    crawl_fallback: false\n")
+
+	cfg, err := config.Load(dir)
+	if err != nil {
+		t.Fatalf("load config: %v", err)
+	}
+	if len(cfg.Sources.Sources) != 1 {
+		t.Fatalf("expected one source, got %d", len(cfg.Sources.Sources))
+	}
+	if cfg.Sources.Sources[0].Kind != config.SourceKindPulse {
+		t.Fatalf("expected source kind %q, got %q", config.SourceKindPulse, cfg.Sources.Sources[0].Kind)
+	}
+}
+
 func TestLoadConfigDefaultsEmptySourceKindToRSS(t *testing.T) {
 	dir := t.TempDir()
 	writeBaseConfigFiles(t, dir)

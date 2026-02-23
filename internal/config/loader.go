@@ -126,7 +126,7 @@ func validate(cfg AppConfig) error {
 		sourceIDs[sourceID] = struct{}{}
 
 		switch source.Kind {
-		case SourceKindRSS, SourceKindDirect:
+		case SourceKindRSS, SourceKindDirect, SourceKindPulse:
 		default:
 			return fmt.Errorf("source %s has unsupported kind %q", source.ID, source.Kind)
 		}
