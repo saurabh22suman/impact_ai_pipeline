@@ -18,7 +18,6 @@ type impactModeConfig struct {
 	ParentSymbols        map[string]struct{}
 	ChildSymbols         map[string]struct{}
 	ChildSymbolsByParent map[string]map[string]struct{}
-	rolesBySymbol        map[string]string
 }
 
 func newImpactModeConfig(groups []config.EntityGroup, requested []config.Entity, all []config.Entity) impactModeConfig {
@@ -63,15 +62,6 @@ func newImpactModeConfig(groups []config.EntityGroup, requested []config.Entity,
 		return impactModeConfig{}
 	}
 
-	roles := map[string]string{}
-	for _, entity := range all {
-		symbol := strings.ToUpper(strings.TrimSpace(entity.Symbol))
-		if symbol == "" {
-			continue
-		}
-		roles[symbol] = strings.ToLower(strings.TrimSpace(entity.Role))
-	}
-
 	requestedChildUnion := map[string]struct{}{}
 	requestedChildByParent := map[string]map[string]struct{}{}
 	for parent := range requestedParents {
@@ -91,7 +81,6 @@ func newImpactModeConfig(groups []config.EntityGroup, requested []config.Entity,
 		ParentSymbols:        requestedParents,
 		ChildSymbols:         requestedChildUnion,
 		ChildSymbolsByParent: requestedChildByParent,
-		rolesBySymbol:        roles,
 	}
 }
 
@@ -131,7 +120,7 @@ func (s *Service) buildFeatureRows(ctx context.Context, event core.MarketAligned
 			URL:              event.Event.Article.URL,
 			ParentEntity:     "N/A",
 			ChildEntity:      "N/A",
-			SentimentDisplay: formatBaseSentimentDisplay(event.Event.SentimentLabel),
+			SentimentDisplay: formatBaseSentimentDisplay(event.Event.SentimentLabel, event.Event.SentimentScore),
 			Weight:           1.0,
 			ConfidenceScore:  0,
 			Summary:          featureSummary(event.Event.Article),
@@ -161,7 +150,7 @@ func (s *Service) buildFeatureRows(ctx context.Context, event core.MarketAligned
 			URL:              event.Event.Article.URL,
 			ParentEntity:     entity.Symbol,
 			ChildEntity:      "N/A",
-			SentimentDisplay: formatBaseSentimentDisplay(event.Event.SentimentLabel),
+			SentimentDisplay: formatBaseSentimentDisplay(event.Event.SentimentLabel, event.Event.SentimentScore),
 			Weight:           1.0,
 			ConfidenceScore:  entity.Confidence,
 			Summary:          featureSummary(event.Event.Article),
@@ -190,17 +179,6 @@ func (s *Service) buildImpactFeatureRows(ctx context.Context, event core.MarketA
 		if _, ok := impact.ChildSymbols[symbol]; ok {
 			childrenBySymbol[symbol] = match
 			continue
-		}
-		role := impact.rolesBySymbol[symbol]
-		if role == config.EntityRoleParent {
-			if _, ok := impact.ParentSymbols[symbol]; ok {
-				parents = append(parents, match)
-			}
-		}
-		if role == config.EntityRoleChild {
-			if _, ok := impact.ChildSymbols[symbol]; ok {
-				childrenBySymbol[symbol] = match
-			}
 		}
 	}
 
@@ -458,12 +436,12 @@ func allocateInt(total, parts, idx int) int {
 	return base
 }
 
-func formatBaseSentimentDisplay(label string) string {
+func formatBaseSentimentDisplay(label string, score float64) string {
 	cleanLabel := strings.TrimSpace(label)
 	if cleanLabel == "" {
 		cleanLabel = "neutral"
 	}
-	return cleanLabel
+	return fmt.Sprintf("%s (%.2f)", cleanLabel, score)
 }
 
 func formatPairSentimentDisplay(label string, score float64) string {

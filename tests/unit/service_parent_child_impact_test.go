@@ -116,40 +116,6 @@ func TestServiceRunImpactModeMarksMixedProviderWhenPairProviderDiffersFromBase(t
 	}
 }
 
-func TestServiceRunNonImpactModeKeepsLabelOnlySentimentDisplay(t *testing.T) {
-	cfg := loadImpactTestConfig(t)
-	svc := engine.NewService(cfg, storage.NewInMemoryStore())
-
-	now := time.Now().UTC()
-	articles := []core.Article{{
-		ID:          "a-non-impact",
-		SourceID:    "test-source",
-		SourceName:  "Test Source",
-		URL:         "https://example.com/a-non-impact",
-		Title:       "OPENAI platform update",
-		Summary:     "OPENAI shares roadmap",
-		Body:        "OPENAI announces roadmap",
-		Language:    "en",
-		Region:      "india",
-		PublishedAt: now,
-		IngestedAt:  now,
-	}}
-
-	result, err := svc.Run(context.Background(), core.RunRequest{Entities: []string{"OPENAI"}, PipelineProfile: "impact_test"}, articles)
-	if err != nil {
-		t.Fatalf("service run: %v", err)
-	}
-
-	if len(result.FeatureRows) != 1 {
-		t.Fatalf("expected 1 feature row, got %d", len(result.FeatureRows))
-	}
-	if result.FeatureRows[0].SentimentDisplay == "" {
-		t.Fatalf("expected non-empty sentiment display")
-	}
-	if strings.Contains(result.FeatureRows[0].SentimentDisplay, "(") || strings.Contains(result.FeatureRows[0].SentimentDisplay, ")") {
-		t.Fatalf("expected label-only sentiment display in non-impact mode, got %q", result.FeatureRows[0].SentimentDisplay)
-	}
-}
 
 func TestServiceRunBuildsParentOnlyRowsWithNAChild(t *testing.T) {
 	cfg := loadImpactTestConfig(t)
