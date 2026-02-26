@@ -93,7 +93,7 @@ func loadOptionalYAML[T any](path string) (T, error) {
 }
 
 func computeConfigVersion(cfg AppConfig) string {
-	parts := []string{
+	rawParts := []string{
 		cfg.Sources.Version,
 		cfg.EntitiesDefault.Version,
 		cfg.EntitiesCustom.Version,
@@ -101,6 +101,14 @@ func computeConfigVersion(cfg AppConfig) string {
 		cfg.Factors.Version,
 		cfg.Providers.Version,
 		cfg.Pipelines.Version,
+	}
+	parts := make([]string, 0, len(rawParts))
+	for _, part := range rawParts {
+		version := strings.TrimSpace(part)
+		if version == "" {
+			continue
+		}
+		parts = append(parts, version)
 	}
 	return strings.Join(parts, "+")
 }

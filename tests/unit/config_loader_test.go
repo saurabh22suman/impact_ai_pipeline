@@ -1,7 +1,9 @@
 package unit
 
 import (
+	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/soloengine/ai-impact-scrapper/internal/config"
@@ -74,6 +76,29 @@ func TestLoadConfigRejectsEntityGroupRoleMismatch(t *testing.T) {
 	_, err := config.Load(dir)
 	if err == nil {
 		t.Fatalf("expected validation error for entity group role mismatch")
+	}
+}
+
+func TestLoadConfigAllowsMissingEntityGroupsFile(t *testing.T) {
+	dir := t.TempDir()
+	writeBaseConfigFiles(t, dir)
+	mustWrite(t, dir, "sources.yaml", "version: v1\nsources:\n  - id: a\n    name: A\n    kind: rss\n    url: https://example.com\n    region: global\n    language: en\n    enabled: true\n    crawl_fallback: false\n")
+	if err := os.Remove(filepath.Join(dir, "entity_groups.yaml")); err != nil {
+		t.Fatalf("remove entity_groups.yaml: %v", err)
+	}
+
+	cfg, err := config.Load(dir)
+	if err != nil {
+		t.Fatalf("load config: %v", err)
+	}
+	if len(cfg.EntityGroups.Groups) != 0 {
+		t.Fatalf("expected no entity groups when file is missing, got %d", len(cfg.EntityGroups.Groups))
+	}
+	if cfg.ConfigVersion == "" {
+		t.Fatalf("expected non-empty config version")
+	}
+	if strings.Contains(cfg.ConfigVersion, "++") {
+		t.Fatalf("expected config version without empty segments, got %q", cfg.ConfigVersion)
 	}
 }
 
