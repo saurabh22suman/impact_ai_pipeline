@@ -13,6 +13,9 @@ const (
 
 	EntityTypeEquity = "equity"
 	EntityTypeIndex  = "index"
+
+	EntityRoleParent = "parent"
+	EntityRoleChild  = "child"
 )
 
 func NormalizeSourceKind(raw string) string {
@@ -46,6 +49,7 @@ type Entity struct {
 	Aliases  []string `yaml:"aliases"`
 	Exchange string   `yaml:"exchange"`
 	Sector   string   `yaml:"sector"`
+	Role     string   `yaml:"role"`
 	Type     string   `yaml:"type"`
 	Enabled  bool     `yaml:"enabled"`
 }
@@ -53,6 +57,16 @@ type Entity struct {
 type EntitiesFile struct {
 	Version  string   `yaml:"version"`
 	Entities []Entity `yaml:"entities"`
+}
+
+type EntityGroup struct {
+	ParentSymbol string   `yaml:"parent_symbol"`
+	ChildSymbols []string `yaml:"child_symbols"`
+}
+
+type EntityGroupsFile struct {
+	Version string        `yaml:"version"`
+	Groups  []EntityGroup `yaml:"groups"`
 }
 
 type Factor struct {
@@ -121,6 +135,7 @@ type AppConfig struct {
 	Sources         SourcesFile
 	EntitiesDefault EntitiesFile
 	EntitiesCustom  EntitiesFile
+	EntityGroups    EntityGroupsFile
 	Factors         FactorsFile
 	Providers       ProvidersFile
 	Pipelines       PipelinesFile
@@ -135,6 +150,16 @@ func NormalizeEntityType(raw string) string {
 		return typ
 	default:
 		return EntityTypeEquity
+	}
+}
+
+func NormalizeEntityRole(raw string) string {
+	role := strings.ToLower(strings.TrimSpace(raw))
+	switch role {
+	case EntityRoleParent, EntityRoleChild:
+		return role
+	default:
+		return ""
 	}
 }
 

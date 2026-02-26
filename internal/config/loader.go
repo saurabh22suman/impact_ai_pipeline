@@ -27,6 +27,10 @@ func Load(configDir string) (AppConfig, error) {
 	if err != nil {
 		return AppConfig{}, err
 	}
+	entityGroups, err := loadOptionalYAML[EntityGroupsFile](filepath.Join(configDir, "entity_groups.yaml"))
+	if err != nil {
+		return AppConfig{}, err
+	}
 	factors, err := loadYAML[FactorsFile](filepath.Join(configDir, "factors.yaml"))
 	if err != nil {
 		return AppConfig{}, err
@@ -44,6 +48,7 @@ func Load(configDir string) (AppConfig, error) {
 		Sources:         sources,
 		EntitiesDefault: entitiesDefault,
 		EntitiesCustom:  entitiesCustom,
+		EntityGroups:    entityGroups,
 		Factors:         factors,
 		Providers:       providers,
 		Pipelines:       pipelines,
@@ -72,11 +77,27 @@ func loadYAML[T any](path string) (T, error) {
 	return out, nil
 }
 
+func loadOptionalYAML[T any](path string) (T, error) {
+	var out T
+	payload, err := os.ReadFile(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return out, nil
+		}
+		return out, fmt.Errorf("read %s: %w", path, err)
+	}
+	if err := yaml.Unmarshal(payload, &out); err != nil {
+		return out, fmt.Errorf("parse %s: %w", path, err)
+	}
+	return out, nil
+}
+
 func computeConfigVersion(cfg AppConfig) string {
 	parts := []string{
 		cfg.Sources.Version,
 		cfg.EntitiesDefault.Version,
 		cfg.EntitiesCustom.Version,
+		cfg.EntityGroups.Version,
 		cfg.Factors.Version,
 		cfg.Providers.Version,
 		cfg.Pipelines.Version,
@@ -103,6 +124,7 @@ func normalizeEntityTypes(cfg *AppConfig) {
 			typ = DefaultEntityTypeForSymbol(cfg.EntitiesDefault.Entities[i].Symbol)
 		}
 		cfg.EntitiesDefault.Entities[i].Type = NormalizeEntityType(typ)
+		cfg.EntitiesDefault.Entities[i].Role = NormalizeEntityRole(cfg.EntitiesDefault.Entities[i].Role)
 	}
 	for i := range cfg.EntitiesCustom.Entities {
 		typ := cfg.EntitiesCustom.Entities[i].Type
@@ -110,6 +132,7 @@ func normalizeEntityTypes(cfg *AppConfig) {
 			typ = DefaultEntityTypeForSymbol(cfg.EntitiesCustom.Entities[i].Symbol)
 		}
 		cfg.EntitiesCustom.Entities[i].Type = NormalizeEntityType(typ)
+		cfg.EntitiesCustom.Entities[i].Role = NormalizeEntityRole(cfg.EntitiesCustom.Entities[i].Role)
 	}
 }
 
@@ -143,6 +166,35 @@ func validate(cfg AppConfig) error {
 	}
 	if len(cfg.Factors.Factors) == 0 {
 		return fmt.Errorf("at least one factor must be configured")
+	}
+
+	effectiveEntitiesBySymbol := map[string]Entity{}
+	for _, entity := range cfg.EffectiveEntities() {
+		symbol := strings.ToUpper(strings.TrimSpace(entity.Symbol))
+		if symbol == "" {
+			continue
+		}
+		effectiveEntitiesBySymbol[symbol] = entity
+	}
+	for _, group := range cfg.EntityGroups.Groups {
+		parentSymbol := strings.ToUpper(strings.TrimSpace(group.ParentSymbol))
+		parent, ok := effectiveEntitiesBySymbol[parentSymbol]
+		if !ok {
+			return fmt.Errorf("entity group parent symbol %q not found in enabled entities", group.ParentSymbol)
+		}
+		if parent.Role != EntityRoleParent {
+			return fmt.Errorf("entity group parent symbol %q must have role %q", group.ParentSymbol, EntityRoleParent)
+		}
+		for _, childSymbolRaw := range group.ChildSymbols {
+			childSymbol := strings.ToUpper(strings.TrimSpace(childSymbolRaw))
+			child, ok := effectiveEntitiesBySymbol[childSymbol]
+			if !ok {
+				return fmt.Errorf("entity group child symbol %q not found in enabled entities", childSymbolRaw)
+			}
+			if child.Role != EntityRoleChild {
+				return fmt.Errorf("entity group child symbol %q must have role %q", childSymbolRaw, EntityRoleChild)
+			}
+		}
 	}
 	if len(cfg.EnabledProviders()) == 0 {
 		return fmt.Errorf("at least one provider must be enabled")
