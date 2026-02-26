@@ -261,17 +261,31 @@ func (s *Service) selectEntities(requested []string) ([]config.Entity, impactMod
 		return selected, impact, nil
 	}
 
+	impactSeen := map[string]struct{}{}
+	impactSelected := make([]config.Entity, 0, len(selected)+len(impact.ChildSymbols))
+	for _, entity := range selected {
+		symbol := strings.ToUpper(strings.TrimSpace(entity.Symbol))
+		if _, ok := impact.ParentSymbols[symbol]; !ok {
+			continue
+		}
+		if _, exists := impactSeen[symbol]; exists {
+			continue
+		}
+		impactSeen[symbol] = struct{}{}
+		impactSelected = append(impactSelected, entity)
+	}
+
 	for childSymbol := range impact.ChildSymbols {
-		if _, exists := seen[childSymbol]; exists {
+		if _, exists := impactSeen[childSymbol]; exists {
 			continue
 		}
 		entity, ok := bySymbol[childSymbol]
 		if !ok {
 			continue
 		}
-		seen[childSymbol] = struct{}{}
-		selected = append(selected, entity)
+		impactSeen[childSymbol] = struct{}{}
+		impactSelected = append(impactSelected, entity)
 	}
 
-	return selected, impact, nil
+	return impactSelected, impact, nil
 }

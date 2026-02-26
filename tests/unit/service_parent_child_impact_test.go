@@ -116,13 +116,52 @@ func TestServiceRunSkipsArticlesWithoutParentMatchInImpactMode(t *testing.T) {
 	}
 }
 
+func TestServiceRunImpactModeIgnoresNonParentRequestedEntities(t *testing.T) {
+	cfg := loadImpactTestConfigWithNiftyIT(t)
+	svc := engine.NewService(cfg, storage.NewInMemoryStore())
+
+	now := time.Now().UTC()
+	articles := []core.Article{{
+		ID:          "a4",
+		SourceID:    "test-source",
+		SourceName:  "Test Source",
+		URL:         "https://example.com/a4",
+		Title:       "NIFTIT index update",
+		Summary:     "NIFTIT index moves higher",
+		Body:        "NIFTIT cloud index",
+		Language:    "en",
+		Region:      "india",
+		PublishedAt: now,
+		IngestedAt:  now,
+	}}
+
+	result, err := svc.Run(context.Background(), core.RunRequest{Entities: []string{"INFY", "NIFTIT"}, PipelineProfile: "impact_test"}, articles)
+	if err != nil {
+		t.Fatalf("service run: %v", err)
+	}
+
+	if len(result.FeatureRows) != 0 {
+		t.Fatalf("expected 0 feature rows when only non-parent requested entity matches, got %d", len(result.FeatureRows))
+	}
+}
+
 func loadImpactTestConfig(t *testing.T) config.AppConfig {
+	t.Helper()
+	return loadImpactTestConfigWithCustomEntities(t, "version: v1\nentities:\n  - id: child-openai\n    symbol: OPENAI\n    name: OpenAI\n    aliases: [OPENAI, OpenAI]\n    exchange: GLOBAL\n    sector: AI\n    role: child\n    type: equity\n    enabled: true\n  - id: child-gemini\n    symbol: GEMINI\n    name: Gemini\n    aliases: [GEMINI, Gemini]\n    exchange: GLOBAL\n    sector: AI\n    role: child\n    type: equity\n    enabled: true\n")
+}
+
+func loadImpactTestConfigWithNiftyIT(t *testing.T) config.AppConfig {
+	t.Helper()
+	return loadImpactTestConfigWithCustomEntities(t, "version: v1\nentities:\n  - id: nse-niftit\n    symbol: NIFTIT\n    name: Nifty IT Index\n    aliases: [NIFTIT, Nifty IT]\n    exchange: NSE\n    sector: Index\n    role: child\n    type: index\n    enabled: true\n  - id: child-openai\n    symbol: OPENAI\n    name: OpenAI\n    aliases: [OPENAI, OpenAI]\n    exchange: GLOBAL\n    sector: AI\n    role: child\n    type: equity\n    enabled: true\n  - id: child-gemini\n    symbol: GEMINI\n    name: Gemini\n    aliases: [GEMINI, Gemini]\n    exchange: GLOBAL\n    sector: AI\n    role: child\n    type: equity\n    enabled: true\n")
+}
+
+func loadImpactTestConfigWithCustomEntities(t *testing.T, customEntitiesYAML string) config.AppConfig {
 	t.Helper()
 
 	dir := t.TempDir()
 	mustWrite(t, dir, "sources.yaml", "version: v1\nsources:\n  - id: test-source\n    name: Test Source\n    kind: rss\n    url: https://example.com/rss\n    region: india\n    language: en\n    enabled: true\n    crawl_fallback: false\n")
 	mustWrite(t, dir, "entities.niftyit.yaml", "version: v1\nentities:\n  - id: nse-infy\n    symbol: INFY\n    name: Infosys Limited\n    aliases: [INFY, Infosys]\n    exchange: NSE\n    sector: IT\n    role: parent\n    type: equity\n    enabled: true\n")
-	mustWrite(t, dir, "entities.custom.yaml", "version: v1\nentities:\n  - id: child-openai\n    symbol: OPENAI\n    name: OpenAI\n    aliases: [OPENAI, OpenAI]\n    exchange: GLOBAL\n    sector: AI\n    role: child\n    type: equity\n    enabled: true\n  - id: child-gemini\n    symbol: GEMINI\n    name: Gemini\n    aliases: [GEMINI, Gemini]\n    exchange: GLOBAL\n    sector: AI\n    role: child\n    type: equity\n    enabled: true\n")
+	mustWrite(t, dir, "entities.custom.yaml", customEntitiesYAML)
 	mustWrite(t, dir, "entity_groups.yaml", "version: v1\ngroups:\n  - id: nifty-it-impact\n    parent_symbol: INFY\n    child_symbols: [OPENAI, GEMINI]\n")
 	mustWrite(t, dir, "factors.yaml", "version: v1\nfactors:\n  - id: f-cloud\n    name: Cloud\n    category: demand\n    keywords: [cloud]\n    weight: 1\n")
 	mustWrite(t, dir, "providers.yaml", "version: v1\ndefaults:\n  routing_policy: lowest_cost\n  prompt_version: v1\n  circuit_breaker_failures: 3\n  circuit_breaker_seconds: 30\n  retry_count: 2\n  backoff_millis: 100\nproviders:\n  - name: gemini\n    model: gemini-2.0-flash\n    enabled: true\n    price_per_1k_input: 0.1\n    price_per_1k_output: 0.1\n    max_input_tokens: 1024\n    max_output_tokens: 512\n    timeout_seconds: 10\n    max_requests_per_min: 60\nfallback_chain: [gemini:gemini-2.0-flash]\nper_run_token_budget: 100000\nper_provider_token_budget: 100000\nper_run_cost_budget_usd: 100\nper_provider_cost_budget_usd: 100\n")
