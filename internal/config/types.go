@@ -60,6 +60,7 @@ type EntitiesFile struct {
 }
 
 type EntityGroup struct {
+	ID           string   `yaml:"id"`
 	ParentSymbol string   `yaml:"parent_symbol"`
 	ChildSymbols []string `yaml:"child_symbols"`
 }

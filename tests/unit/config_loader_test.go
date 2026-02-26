@@ -66,7 +66,7 @@ func TestLoadConfigParsesEntityGroups(t *testing.T) {
 	dir := t.TempDir()
 	writeBaseConfigFiles(t, dir)
 	mustWrite(t, dir, "sources.yaml", "version: v1\nsources:\n  - id: a\n    name: A\n    kind: rss\n    url: https://example.com\n    region: global\n    language: en\n    enabled: true\n    crawl_fallback: false\n")
-	mustWrite(t, dir, "entity_groups.yaml", "version: v1\ngroups:\n  - parent_symbol: INFY\n    child_symbols: [TCS]\n")
+	mustWrite(t, dir, "entity_groups.yaml", "version: v1\ngroups:\n  - id: nifty-it-impact\n    parent_symbol: INFY\n    child_symbols: [TCS]\n")
 
 	cfg, err := config.Load(dir)
 	if err != nil {
@@ -77,6 +77,9 @@ func TestLoadConfigParsesEntityGroups(t *testing.T) {
 		t.Fatalf("expected one entity group, got %d", len(cfg.EntityGroups.Groups))
 	}
 	group := cfg.EntityGroups.Groups[0]
+	if group.ID != "nifty-it-impact" {
+		t.Fatalf("expected group id nifty-it-impact, got %q", group.ID)
+	}
 	if group.ParentSymbol != "INFY" {
 		t.Fatalf("expected parent symbol INFY, got %q", group.ParentSymbol)
 	}
