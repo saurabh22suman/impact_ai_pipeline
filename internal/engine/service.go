@@ -275,16 +275,18 @@ func (s *Service) selectEntities(requested []string) ([]config.Entity, impactMod
 		impactSelected = append(impactSelected, entity)
 	}
 
-	for childSymbol := range impact.ChildSymbols {
-		if _, exists := impactSeen[childSymbol]; exists {
-			continue
+	for parentSymbol := range impact.ParentSymbols {
+		for childSymbol := range impact.ChildSymbolsByParent[parentSymbol] {
+			if _, exists := impactSeen[childSymbol]; exists {
+				continue
+			}
+			entity, ok := bySymbol[childSymbol]
+			if !ok {
+				continue
+			}
+			impactSeen[childSymbol] = struct{}{}
+			impactSelected = append(impactSelected, entity)
 		}
-		entity, ok := bySymbol[childSymbol]
-		if !ok {
-			continue
-		}
-		impactSeen[childSymbol] = struct{}{}
-		impactSelected = append(impactSelected, entity)
 	}
 
 	return impactSelected, impact, nil

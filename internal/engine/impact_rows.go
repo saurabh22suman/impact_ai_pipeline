@@ -12,27 +12,36 @@ import (
 const niftyITImpactGroupID = "nifty-it-impact"
 
 type impactModeConfig struct {
-	Enabled       bool
-	ParentSymbols map[string]struct{}
-	ChildSymbols  map[string]struct{}
-	rolesBySymbol map[string]string
+	Enabled              bool
+	ParentSymbols        map[string]struct{}
+	ChildSymbols         map[string]struct{}
+	ChildSymbolsByParent map[string]map[string]struct{}
+	rolesBySymbol        map[string]string
 }
 
 func newImpactModeConfig(groups []config.EntityGroup, requested []config.Entity, all []config.Entity) impactModeConfig {
 	groupParents := map[string]struct{}{}
 	groupChildren := map[string]struct{}{}
+	childSymbolsByParent := map[string]map[string]struct{}{}
 	for _, group := range groups {
-		if strings.EqualFold(strings.TrimSpace(group.ID), niftyITImpactGroupID) {
-			parent := strings.ToUpper(strings.TrimSpace(group.ParentSymbol))
-			if parent != "" {
-				groupParents[parent] = struct{}{}
+		if !strings.EqualFold(strings.TrimSpace(group.ID), niftyITImpactGroupID) {
+			continue
+		}
+		parent := strings.ToUpper(strings.TrimSpace(group.ParentSymbol))
+		if parent == "" {
+			continue
+		}
+		groupParents[parent] = struct{}{}
+		if _, ok := childSymbolsByParent[parent]; !ok {
+			childSymbolsByParent[parent] = map[string]struct{}{}
+		}
+		for _, childRaw := range group.ChildSymbols {
+			child := strings.ToUpper(strings.TrimSpace(childRaw))
+			if child == "" {
+				continue
 			}
-			for _, childRaw := range group.ChildSymbols {
-				child := strings.ToUpper(strings.TrimSpace(childRaw))
-				if child != "" {
-					groupChildren[child] = struct{}{}
-				}
-			}
+			groupChildren[child] = struct{}{}
+			childSymbolsByParent[parent][child] = struct{}{}
 		}
 	}
 
@@ -61,11 +70,26 @@ func newImpactModeConfig(groups []config.EntityGroup, requested []config.Entity,
 		roles[symbol] = strings.ToLower(strings.TrimSpace(entity.Role))
 	}
 
+	requestedChildUnion := map[string]struct{}{}
+	requestedChildByParent := map[string]map[string]struct{}{}
+	for parent := range requestedParents {
+		childrenForParent := childSymbolsByParent[parent]
+		if len(childrenForParent) == 0 {
+			continue
+		}
+		requestedChildByParent[parent] = map[string]struct{}{}
+		for child := range childrenForParent {
+			requestedChildUnion[child] = struct{}{}
+			requestedChildByParent[parent][child] = struct{}{}
+		}
+	}
+
 	return impactModeConfig{
-		Enabled:       true,
-		ParentSymbols: requestedParents,
-		ChildSymbols:  groupChildren,
-		rolesBySymbol: roles,
+		Enabled:              true,
+		ParentSymbols:        requestedParents,
+		ChildSymbols:         requestedChildUnion,
+		ChildSymbolsByParent: requestedChildByParent,
+		rolesBySymbol:        roles,
 	}
 }
 
@@ -146,7 +170,7 @@ func buildFeatureRows(event core.MarketAlignedEvent, impact impactModeConfig) []
 
 func buildImpactFeatureRows(event core.MarketAlignedEvent, impact impactModeConfig) []core.FeatureRow {
 	parents := make([]core.EntityMatch, 0)
-	children := make([]core.EntityMatch, 0)
+	childrenBySymbol := map[string]core.EntityMatch{}
 	for _, match := range event.Event.Entities {
 		symbol := strings.ToUpper(strings.TrimSpace(match.Symbol))
 		if symbol == "" {
@@ -157,7 +181,7 @@ func buildImpactFeatureRows(event core.MarketAlignedEvent, impact impactModeConf
 			continue
 		}
 		if _, ok := impact.ChildSymbols[symbol]; ok {
-			children = append(children, match)
+			childrenBySymbol[symbol] = match
 			continue
 		}
 		role := impact.rolesBySymbol[symbol]
@@ -168,7 +192,7 @@ func buildImpactFeatureRows(event core.MarketAlignedEvent, impact impactModeConf
 		}
 		if role == config.EntityRoleChild {
 			if _, ok := impact.ChildSymbols[symbol]; ok {
-				children = append(children, match)
+				childrenBySymbol[symbol] = match
 			}
 		}
 	}
@@ -180,26 +204,38 @@ func buildImpactFeatureRows(event core.MarketAlignedEvent, impact impactModeConf
 	sort.Slice(parents, func(i, j int) bool {
 		return strings.ToUpper(parents[i].Symbol) < strings.ToUpper(parents[j].Symbol)
 	})
-	sort.Slice(children, func(i, j int) bool {
-		return strings.ToUpper(children[i].Symbol) < strings.ToUpper(children[j].Symbol)
-	})
 
 	factorIDs := make([]string, 0, len(event.Event.Factors))
 	for _, factor := range event.Event.Factors {
 		factorIDs = append(factorIDs, factor.FactorID)
 	}
 
-	if len(children) == 0 {
-		rows := make([]core.FeatureRow, 0, len(parents))
-		for _, parent := range parents {
-			rows = append(rows, impactFeatureRow(event, factorIDs, parent, nil))
-		}
-		return rows
-	}
-
-	rows := make([]core.FeatureRow, 0, len(parents)*len(children))
+	rows := make([]core.FeatureRow, 0, len(parents))
 	for _, parent := range parents {
-		for _, child := range children {
+		parentSymbol := strings.ToUpper(strings.TrimSpace(parent.Symbol))
+		allowedChildren := impact.ChildSymbolsByParent[parentSymbol]
+		if len(allowedChildren) == 0 {
+			rows = append(rows, impactFeatureRow(event, factorIDs, parent, nil))
+			continue
+		}
+
+		matchedChildren := make([]core.EntityMatch, 0, len(allowedChildren))
+		for childSymbol := range allowedChildren {
+			child, ok := childrenBySymbol[childSymbol]
+			if !ok {
+				continue
+			}
+			matchedChildren = append(matchedChildren, child)
+		}
+		if len(matchedChildren) == 0 {
+			rows = append(rows, impactFeatureRow(event, factorIDs, parent, nil))
+			continue
+		}
+
+		sort.Slice(matchedChildren, func(i, j int) bool {
+			return strings.ToUpper(matchedChildren[i].Symbol) < strings.ToUpper(matchedChildren[j].Symbol)
+		})
+		for _, child := range matchedChildren {
 			childCopy := child
 			rows = append(rows, impactFeatureRow(event, factorIDs, parent, &childCopy))
 		}
