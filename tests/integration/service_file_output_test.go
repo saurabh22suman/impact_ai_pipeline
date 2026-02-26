@@ -35,9 +35,9 @@ func TestServiceRunWritesFileOutputsWithMockData(t *testing.T) {
 		SourceID:    "moneycontrol-markets",
 		SourceName:  "Moneycontrol",
 		URL:         "https://example.com/mock-a1",
-		Title:       "Infosys AI demand rises with datacenter capex and compliance wins",
-		Summary:     "Mock summary for integration coverage",
-		Body:        "Infosys reports strong AI demand, compliance projects, and cloud capex momentum.",
+		Title:       "InfoBeans wins enterprise ai contract as ai capex rises",
+		Summary:     "Model deployment and compliance plans expand",
+		Body:        "InfoBeans highlights enterprise ai, ai contract wins, model deployment, ai capex, compliance, ai hiring, datacenter expansion, and compute cost trends.",
 		Language:    "en",
 		Region:      "india",
 		PublishedAt: now,
@@ -45,12 +45,12 @@ func TestServiceRunWritesFileOutputsWithMockData(t *testing.T) {
 	}}
 
 	req := core.RunRequest{
-		Entities:        []string{"INFY"},
+		Entities:        []string{"INFOBEAN"},
 		Sources:         []string{"moneycontrol-markets"},
 		DateFrom:        now.Add(-24 * time.Hour),
 		DateTo:          now,
 		RawDataToggle:   true,
-		PipelineProfile: "high_recall",
+		PipelineProfile: "cost_optimized",
 	}
 
 	result, err := svc.Run(context.Background(), req, articles)
@@ -88,7 +88,7 @@ func TestServiceRunWritesFileOutputsWithMockData(t *testing.T) {
 	if savedReq.PipelineProfile != req.PipelineProfile || !savedReq.RawDataToggle {
 		t.Fatalf("saved request mismatch: %+v", savedReq)
 	}
-	if len(savedReq.Entities) != 1 || savedReq.Entities[0] != "INFY" {
+	if len(savedReq.Entities) != 1 || savedReq.Entities[0] != "INFOBEAN" {
 		t.Fatalf("expected saved request entities, got %+v", savedReq.Entities)
 	}
 
@@ -97,8 +97,11 @@ func TestServiceRunWritesFileOutputsWithMockData(t *testing.T) {
 		t.Fatalf("read features.csv: %v", err)
 	}
 	csvText := string(csvBytes)
-	if !strings.Contains(csvText, "article_id") || !strings.Contains(csvText, "INFY") {
-		t.Fatalf("csv export missing expected headers/data")
+	if !strings.Contains(csvText, "Index,News Source,URL,Parent entity,Child Entity,Sentiment,Weight,Confidence Score,Cost,Summary") {
+		t.Fatalf("csv export missing expected business header")
+	}
+	if !strings.Contains(csvText, "INFOBEAN") {
+		t.Fatalf("csv export missing expected data")
 	}
 
 	jsonlBytes, err := os.ReadFile(filepath.Join(runDir, "exports", "events.jsonl"))

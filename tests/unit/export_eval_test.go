@@ -27,10 +27,13 @@ func TestExporterOutputsJSONLCSVTOON(t *testing.T) {
 		t.Fatalf("csv export failed: %v", err)
 	}
 	csvStr := string(csvData)
-	for _, key := range []string{"run_id", "config_version", "pipeline_profile", "provider", "model", "prompt_version"} {
-		if !strings.Contains(csvStr, key) {
-			t.Fatalf("csv missing provenance column %s", key)
+	for _, header := range []string{"Index", "News Source", "URL", "Parent entity", "Child Entity", "Sentiment", "Weight", "Confidence Score", "Cost", "Summary"} {
+		if !strings.Contains(csvStr, header) {
+			t.Fatalf("csv missing expected header %s", header)
 		}
+	}
+	if strings.Contains(csvStr, "run_id") {
+		t.Fatalf("business csv should not expose run_id column")
 	}
 
 	toon, err := exp.TOON([]core.MarketAlignedEvent{event})
@@ -40,6 +43,24 @@ func TestExporterOutputsJSONLCSVTOON(t *testing.T) {
 	toonStr := string(toon)
 	if !strings.Contains(toonStr, `"run_id":"run-1"`) || !strings.Contains(toonStr, `"prompt_version":"v1"`) {
 		t.Fatalf("toon missing required provenance fields")
+	}
+}
+
+func TestExporterTruncatesSummaryToTenWords(t *testing.T) {
+	exp := export.NewExporter()
+	rows := []core.FeatureRow{sampleFeatureRow()}
+	rows[0].Summary = "one two three four five six seven eight nine ten eleven twelve"
+
+	csvData, err := exp.CSV(rows)
+	if err != nil {
+		t.Fatalf("csv export failed: %v", err)
+	}
+	csvStr := string(csvData)
+	if !strings.Contains(csvStr, "one two three four five six seven eight nine ten") {
+		t.Fatalf("expected truncated ten-word summary, got %q", csvStr)
+	}
+	if strings.Contains(csvStr, "one two three four five six seven eight nine ten eleven") {
+		t.Fatalf("expected summary to exclude words beyond tenth")
 	}
 }
 
@@ -89,21 +110,29 @@ func sampleAlignedEvent() core.MarketAlignedEvent {
 
 func sampleFeatureRow() core.FeatureRow {
 	return core.FeatureRow{
-		RunID:           "run-1",
-		ConfigVersion:   "2026-02-22",
-		PipelineProfile: "cost_optimized",
-		Provider:        "mimo",
-		Model:           "mimo-v2-synthetic",
-		PromptVersion:   "v1",
-		ArticleID:       "a1",
-		Symbol:          "TCS",
-		SessionDate:     time.Date(2026, 2, 22, 0, 0, 0, 0, time.UTC),
-		SessionLabel:    "post_close",
-		SentimentScore:  0.4,
-		RelevanceScore:  0.7,
-		FactorVector:    []string{"ai-demand"},
-		InputTokens:     100,
-		OutputTokens:    50,
-		EstimatedCostUS: 0.02,
+		RunID:            "run-1",
+		ConfigVersion:    "2026-02-22",
+		PipelineProfile:  "cost_optimized",
+		Provider:         "mimo",
+		Model:            "mimo-v2-synthetic",
+		PromptVersion:    "v1",
+		ArticleID:        "a1",
+		Symbol:           "TCS",
+		SessionDate:      time.Date(2026, 2, 22, 0, 0, 0, 0, time.UTC),
+		SessionLabel:     "post_close",
+		SentimentScore:   0.4,
+		RelevanceScore:   0.7,
+		FactorVector:     []string{"ai-demand"},
+		InputTokens:      100,
+		OutputTokens:     50,
+		EstimatedCostUS:  0.02,
+		NewsSource:       "Moneycontrol",
+		URL:              "https://example.com/a1",
+		ParentEntity:     "TCS",
+		ChildEntity:      "OPENAI",
+		SentimentDisplay: "positive (0.40)",
+		Weight:           0.75,
+		ConfidenceScore:  0.88,
+		Summary:          "AI demand rises for TCS with OpenAI co-sell motion",
 	}
 }

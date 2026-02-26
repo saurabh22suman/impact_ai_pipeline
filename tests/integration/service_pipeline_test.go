@@ -27,9 +27,9 @@ func TestServiceRunProducesProvenancedOutputs(t *testing.T) {
 			SourceID:    "moneycontrol-markets",
 			SourceName:  "Moneycontrol",
 			URL:         "https://example.com/a1",
-			Title:       "Infosys sees strong AI demand and capex expansion with compliance hiring",
-			Summary:     "Enterprise AI adoption accelerates with regulation focus",
-			Body:        "AI demand remains strong with datacenter capex growth and hiring momentum",
+			Title:       "InfoBeans wins enterprise ai contract with ai capex expansion",
+			Summary:     "Model deployment and compliance initiatives accelerate",
+			Body:        "InfoBeans reports enterprise ai demand, ai contract wins, model deployment, ai capex, compliance, ai hiring, and datacenter expansion.",
 			Language:    "en",
 			Region:      "india",
 			PublishedAt: now,
@@ -37,7 +37,7 @@ func TestServiceRunProducesProvenancedOutputs(t *testing.T) {
 		},
 	}
 
-	result, err := svc.Run(context.Background(), core.RunRequest{PipelineProfile: "high_recall", Entities: []string{"INFY"}}, articles)
+	result, err := svc.Run(context.Background(), core.RunRequest{PipelineProfile: "cost_optimized", Entities: []string{"INFOBEAN"}}, articles)
 	if err != nil {
 		t.Fatalf("service run: %v", err)
 	}

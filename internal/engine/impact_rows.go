@@ -131,7 +131,7 @@ func (s *Service) buildFeatureRows(ctx context.Context, event core.MarketAligned
 			URL:              event.Event.Article.URL,
 			ParentEntity:     "N/A",
 			ChildEntity:      "N/A",
-			SentimentDisplay: formatSentimentDisplay(event.Event.SentimentLabel, event.Event.SentimentScore),
+			SentimentDisplay: formatBaseSentimentDisplay(event.Event.SentimentLabel),
 			Weight:           1.0,
 			ConfidenceScore:  0,
 			Summary:          featureSummary(event.Event.Article),
@@ -161,7 +161,7 @@ func (s *Service) buildFeatureRows(ctx context.Context, event core.MarketAligned
 			URL:              event.Event.Article.URL,
 			ParentEntity:     entity.Symbol,
 			ChildEntity:      "N/A",
-			SentimentDisplay: formatSentimentDisplay(event.Event.SentimentLabel, event.Event.SentimentScore),
+			SentimentDisplay: formatBaseSentimentDisplay(event.Event.SentimentLabel),
 			Weight:           1.0,
 			ConfidenceScore:  entity.Confidence,
 			Summary:          featureSummary(event.Event.Article),
@@ -296,13 +296,26 @@ func (s *Service) buildImpactFeatureRows(ctx context.Context, event core.MarketA
 		}
 
 		confidence := pairConfidence(entityConfidence, pairSentiment.Score)
-		provider := pairSentiment.Provider
-		if strings.TrimSpace(provider) == "" {
-			provider = event.Event.Metadata.Provider
+		provider := "mixed"
+		model := "mixed"
+
+		pairProvider := strings.TrimSpace(pairSentiment.Provider)
+		pairModel := strings.TrimSpace(pairSentiment.Model)
+		baseProvider := strings.TrimSpace(event.Event.Metadata.Provider)
+		baseModel := strings.TrimSpace(event.Event.Metadata.Model)
+
+		if pairProvider == "" {
+			pairProvider = baseProvider
 		}
-		model := pairSentiment.Model
-		if strings.TrimSpace(model) == "" {
-			model = event.Event.Metadata.Model
+		if pairModel == "" {
+			pairModel = baseModel
+		}
+
+		if pairProvider != "" && strings.EqualFold(pairProvider, baseProvider) {
+			provider = pairProvider
+		}
+		if pairModel != "" && strings.EqualFold(pairModel, baseModel) {
+			model = pairModel
 		}
 
 		rows = append(rows, core.FeatureRow{
@@ -326,7 +339,7 @@ func (s *Service) buildImpactFeatureRows(ctx context.Context, event core.MarketA
 			URL:              event.Event.Article.URL,
 			ParentEntity:     pair.parent.Symbol,
 			ChildEntity:      childEntity,
-			SentimentDisplay: formatSentimentDisplay(pairSentiment.Label, pairSentiment.Score),
+			SentimentDisplay: formatPairSentimentDisplay(pairSentiment.Label, pairSentiment.Score),
 			Weight:           evaluated.rawWeight / totalRawWeight,
 			ConfidenceScore:  confidence,
 			Summary:          featureSummary(event.Event.Article),
@@ -423,7 +436,7 @@ func pairConfidence(entityConfidence float64, sentimentScore float64) float64 {
 	if magnitude > 1 {
 		magnitude = 1
 	}
-	confidence := entityConfidence*(0.7+0.3*magnitude)
+	confidence := entityConfidence * (0.7 + 0.3*magnitude)
 	if confidence < 0 {
 		return 0
 	}
@@ -445,7 +458,15 @@ func allocateInt(total, parts, idx int) int {
 	return base
 }
 
-func formatSentimentDisplay(label string, score float64) string {
+func formatBaseSentimentDisplay(label string) string {
+	cleanLabel := strings.TrimSpace(label)
+	if cleanLabel == "" {
+		cleanLabel = "neutral"
+	}
+	return cleanLabel
+}
+
+func formatPairSentimentDisplay(label string, score float64) string {
 	cleanLabel := strings.TrimSpace(label)
 	if cleanLabel == "" {
 		cleanLabel = "neutral"

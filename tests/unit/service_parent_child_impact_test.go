@@ -11,6 +11,8 @@ import (
 	"github.com/soloengine/ai-impact-scrapper/internal/config"
 	"github.com/soloengine/ai-impact-scrapper/internal/core"
 	"github.com/soloengine/ai-impact-scrapper/internal/engine"
+	"github.com/soloengine/ai-impact-scrapper/internal/enrich"
+	"github.com/soloengine/ai-impact-scrapper/internal/enrich/providers"
 	"github.com/soloengine/ai-impact-scrapper/internal/storage"
 )
 
@@ -68,6 +70,84 @@ func TestServiceRunBuildsParentChildCrossProductRows(t *testing.T) {
 	}
 	if !pairs["INFY|GEMINI"] {
 		t.Fatalf("missing INFY|GEMINI pair")
+	}
+}
+
+func TestServiceRunImpactModeMarksMixedProviderWhenPairProviderDiffersFromBase(t *testing.T) {
+	cfg := loadImpactMixedProviderConfig(t)
+	svc := engine.NewService(cfg, storage.NewInMemoryStore())
+
+	now := time.Now().UTC()
+	articles := []core.Article{{
+		ID:          "a-mixed-provider",
+		SourceID:    "test-source",
+		SourceName:  "Test Source",
+		URL:         "https://example.com/a-mixed-provider",
+		Title:       "INFY reports strong cloud growth with OPENAI",
+		Summary:     "INFY OPENAI cloud growth",
+		Body:        "INFY OPENAI cloud growth",
+		Language:    "en",
+		Region:      "india",
+		PublishedAt: now,
+		IngestedAt:  now,
+	}}
+
+	result, err := svc.Run(context.Background(), core.RunRequest{Entities: []string{"INFY"}, PipelineProfile: "impact_test_llm"}, articles)
+	if err != nil {
+		t.Fatalf("service run: %v", err)
+	}
+
+	if len(result.Events) != 1 {
+		t.Fatalf("expected 1 event, got %d", len(result.Events))
+	}
+	if !strings.EqualFold(result.Events[0].Event.Metadata.Provider, "rules") {
+		t.Fatalf("expected base event provider rules, got %s", result.Events[0].Event.Metadata.Provider)
+	}
+	if len(result.FeatureRows) != 1 {
+		t.Fatalf("expected 1 feature row, got %d", len(result.FeatureRows))
+	}
+
+	row := result.FeatureRows[0]
+	if row.Provider != "mixed" {
+		t.Fatalf("expected mixed provider attribution for combined base+pair usage, got %q", row.Provider)
+	}
+	if row.Model != "mixed" {
+		t.Fatalf("expected mixed model attribution for combined base+pair usage, got %q", row.Model)
+	}
+}
+
+func TestServiceRunNonImpactModeKeepsLabelOnlySentimentDisplay(t *testing.T) {
+	cfg := loadImpactTestConfig(t)
+	svc := engine.NewService(cfg, storage.NewInMemoryStore())
+
+	now := time.Now().UTC()
+	articles := []core.Article{{
+		ID:          "a-non-impact",
+		SourceID:    "test-source",
+		SourceName:  "Test Source",
+		URL:         "https://example.com/a-non-impact",
+		Title:       "OPENAI platform update",
+		Summary:     "OPENAI shares roadmap",
+		Body:        "OPENAI announces roadmap",
+		Language:    "en",
+		Region:      "india",
+		PublishedAt: now,
+		IngestedAt:  now,
+	}}
+
+	result, err := svc.Run(context.Background(), core.RunRequest{Entities: []string{"OPENAI"}, PipelineProfile: "impact_test"}, articles)
+	if err != nil {
+		t.Fatalf("service run: %v", err)
+	}
+
+	if len(result.FeatureRows) != 1 {
+		t.Fatalf("expected 1 feature row, got %d", len(result.FeatureRows))
+	}
+	if result.FeatureRows[0].SentimentDisplay == "" {
+		t.Fatalf("expected non-empty sentiment display")
+	}
+	if strings.Contains(result.FeatureRows[0].SentimentDisplay, "(") || strings.Contains(result.FeatureRows[0].SentimentDisplay, ")") {
+		t.Fatalf("expected label-only sentiment display in non-impact mode, got %q", result.FeatureRows[0].SentimentDisplay)
 	}
 }
 
@@ -219,6 +299,90 @@ func TestServiceRunImpactModeRespectsPerParentChildMapping(t *testing.T) {
 	}
 }
 
+func TestServiceRunImpactModeConservesBaseUsageAcrossRows(t *testing.T) {
+	cfg := loadImpactPerParentMappingConfig(t)
+	router := enrich.NewProviderRouter(cfg.Providers)
+	svc := engine.NewService(cfg, storage.NewInMemoryStore())
+
+	now := time.Now().UTC()
+	articles := []core.Article{{
+		ID:          "a6",
+		SourceID:    "test-source",
+		SourceName:  "Test Source",
+		URL:         "https://example.com/a6",
+		Title:       "INFY and TCS report growth with OPENAI and AWS",
+		Summary:     "INFY TCS OPENAI AWS growth update",
+		Body:        "INFY TCS OPENAI AWS growth",
+		Language:    "en",
+		Region:      "india",
+		PublishedAt: now,
+		IngestedAt:  now,
+	}}
+
+	pairTextINFYOpenAI := strings.TrimSpace(strings.Join([]string{
+		"Parent: INFY",
+		"Child: OPENAI",
+		"Title: INFY and TCS report growth with OPENAI and AWS",
+		"Summary: INFY TCS OPENAI AWS growth update",
+		"Body: INFY TCS OPENAI AWS growth",
+	}, "\n"))
+	pairTextTCSAWS := strings.TrimSpace(strings.Join([]string{
+		"Parent: TCS",
+		"Child: AWS",
+		"Title: INFY and TCS report growth with OPENAI and AWS",
+		"Summary: INFY TCS OPENAI AWS growth update",
+		"Body: INFY TCS OPENAI AWS growth",
+	}, "\n"))
+
+	firstPairUsage, err := router.Enrich(context.Background(), providers.ClassificationRequest{Text: pairTextINFYOpenAI})
+	if err != nil {
+		t.Fatalf("router pair usage 1: %v", err)
+	}
+	secondPairUsage, err := router.Enrich(context.Background(), providers.ClassificationRequest{Text: pairTextTCSAWS})
+	if err != nil {
+		t.Fatalf("router pair usage 2: %v", err)
+	}
+
+	result, err := svc.Run(context.Background(), core.RunRequest{Entities: []string{"INFY", "TCS"}, PipelineProfile: "impact_test"}, articles)
+	if err != nil {
+		t.Fatalf("service run: %v", err)
+	}
+
+	if len(result.Events) != 1 {
+		t.Fatalf("expected 1 event, got %d", len(result.Events))
+	}
+	if len(result.FeatureRows) != 2 {
+		t.Fatalf("expected 2 feature rows, got %d", len(result.FeatureRows))
+	}
+
+	baseInput := result.Events[0].Event.Metadata.InputTokens
+	baseOutput := result.Events[0].Event.Metadata.OutputTokens
+	baseCost := result.Events[0].Event.Metadata.EstimatedCostUS
+
+	totalInput := 0
+	totalOutput := 0
+	totalCost := 0.0
+	for _, row := range result.FeatureRows {
+		totalInput += row.InputTokens
+		totalOutput += row.OutputTokens
+		totalCost += row.EstimatedCostUS
+	}
+
+	expectedPairInput := firstPairUsage.InputTokens + secondPairUsage.InputTokens
+	expectedPairOutput := firstPairUsage.OutputTokens + secondPairUsage.OutputTokens
+	expectedPairCost := firstPairUsage.EstimatedCost + secondPairUsage.EstimatedCost
+
+	if totalInput != baseInput+expectedPairInput {
+		t.Fatalf("expected total input tokens %d (base %d + pair %d), got %d", baseInput+expectedPairInput, baseInput, expectedPairInput, totalInput)
+	}
+	if totalOutput != baseOutput+expectedPairOutput {
+		t.Fatalf("expected total output tokens %d (base %d + pair %d), got %d", baseOutput+expectedPairOutput, baseOutput, expectedPairOutput, totalOutput)
+	}
+	if math.Abs(totalCost-(baseCost+expectedPairCost)) > 1e-9 {
+		t.Fatalf("expected total cost %.12f (base %.12f + pair %.12f), got %.12f", baseCost+expectedPairCost, baseCost, expectedPairCost, totalCost)
+	}
+}
+
 func loadImpactTestConfig(t *testing.T) config.AppConfig {
 	t.Helper()
 	return loadImpactTestConfigWithCustomEntities(t, "version: v1\nentities:\n  - id: child-openai\n    symbol: OPENAI\n    name: OpenAI\n    aliases: [OPENAI, OpenAI]\n    exchange: GLOBAL\n    sector: AI\n    role: child\n    type: equity\n    enabled: true\n  - id: child-gemini\n    symbol: GEMINI\n    name: Gemini\n    aliases: [GEMINI, Gemini]\n    exchange: GLOBAL\n    sector: AI\n    role: child\n    type: equity\n    enabled: true\n")
@@ -236,6 +400,16 @@ func loadImpactPerParentMappingConfig(t *testing.T) config.AppConfig {
 		"version: v1\nentities:\n  - id: nse-infy\n    symbol: INFY\n    name: Infosys Limited\n    aliases: [INFY, Infosys]\n    exchange: NSE\n    sector: IT\n    role: parent\n    type: equity\n    enabled: true\n  - id: nse-tcs\n    symbol: TCS\n    name: Tata Consultancy Services\n    aliases: [TCS]\n    exchange: NSE\n    sector: IT\n    role: parent\n    type: equity\n    enabled: true\n",
 		"version: v1\nentities:\n  - id: child-openai\n    symbol: OPENAI\n    name: OpenAI\n    aliases: [OPENAI, OpenAI]\n    exchange: GLOBAL\n    sector: AI\n    role: child\n    type: equity\n    enabled: true\n  - id: child-aws\n    symbol: AWS\n    name: Amazon Web Services\n    aliases: [AWS]\n    exchange: GLOBAL\n    sector: Cloud\n    role: child\n    type: equity\n    enabled: true\n",
 		"version: v1\ngroups:\n  - id: nifty-it-impact\n    parent_symbol: INFY\n    child_symbols: [OPENAI]\n  - id: nifty-it-impact\n    parent_symbol: TCS\n    child_symbols: [AWS]\n",
+	)
+}
+
+func loadImpactMixedProviderConfig(t *testing.T) config.AppConfig {
+	t.Helper()
+	return loadImpactTestConfigWithInputs(
+		t,
+		"version: v1\nentities:\n  - id: nse-infy\n    symbol: INFY\n    name: Infosys Limited\n    aliases: [INFY, Infosys]\n    exchange: NSE\n    sector: IT\n    role: parent\n    type: equity\n    enabled: true\n",
+		"version: v1\nentities:\n  - id: child-openai\n    symbol: OPENAI\n    name: OpenAI\n    aliases: [OPENAI, OpenAI]\n    exchange: GLOBAL\n    sector: AI\n    role: child\n    type: equity\n    enabled: true\n",
+		"version: v1\ngroups:\n  - id: nifty-it-impact\n    parent_symbol: INFY\n    child_symbols: [OPENAI]\n",
 	)
 }
 
@@ -259,7 +433,7 @@ func loadImpactTestConfigWithInputs(t *testing.T, defaultEntitiesYAML, customEnt
 	mustWrite(t, dir, "entity_groups.yaml", entityGroupsYAML)
 	mustWrite(t, dir, "factors.yaml", "version: v1\nfactors:\n  - id: f-cloud\n    name: Cloud\n    category: demand\n    keywords: [cloud]\n    weight: 1\n")
 	mustWrite(t, dir, "providers.yaml", "version: v1\ndefaults:\n  routing_policy: lowest_cost\n  prompt_version: v1\n  circuit_breaker_failures: 3\n  circuit_breaker_seconds: 30\n  retry_count: 2\n  backoff_millis: 100\nproviders:\n  - name: gemini\n    model: gemini-2.0-flash\n    enabled: true\n    price_per_1k_input: 0.1\n    price_per_1k_output: 0.1\n    max_input_tokens: 1024\n    max_output_tokens: 512\n    timeout_seconds: 10\n    max_requests_per_min: 60\nfallback_chain: [gemini:gemini-2.0-flash]\nper_run_token_budget: 100000\nper_provider_token_budget: 100000\nper_run_cost_budget_usd: 100\nper_provider_cost_budget_usd: 100\n")
-	mustWrite(t, dir, "pipelines.yaml", "version: v1\ndefault_profile: impact_test\nprofiles:\n  - name: impact_test\n    description: impact test profile\n    ambiguity_threshold: 0.9\n    novelty_threshold: 1.0\n    min_relevance_score: 0.0\n    enable_raw_artifacts: false\n    llm_budget_tokens: 1000\n    session: nse\n")
+	mustWrite(t, dir, "pipelines.yaml", "version: v1\ndefault_profile: impact_test\nprofiles:\n  - name: impact_test\n    description: impact test profile\n    ambiguity_threshold: 0.9\n    novelty_threshold: 1.0\n    min_relevance_score: 0.0\n    enable_raw_artifacts: false\n    llm_budget_tokens: 1000\n    session: nse\n  - name: impact_test_llm\n    description: impact test profile with llm refinement\n    ambiguity_threshold: 0.0\n    novelty_threshold: 1.0\n    min_relevance_score: 0.0\n    enable_raw_artifacts: false\n    llm_budget_tokens: 1000\n    session: nse\n")
 
 	cfg, err := config.Load(filepath.Clean(dir))
 	if err != nil {

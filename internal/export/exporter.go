@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/soloengine/ai-impact-scrapper/internal/core"
@@ -31,33 +32,23 @@ func (e Exporter) JSONL(events []core.MarketAlignedEvent) ([]byte, error) {
 func (e Exporter) CSV(rows []core.FeatureRow) ([]byte, error) {
 	buf := bytes.NewBuffer(nil)
 	writer := csv.NewWriter(buf)
-	headers := []string{
-		"run_id", "config_version", "pipeline_profile", "provider", "model", "prompt_version",
-		"article_id", "symbol", "session_date", "session_label", "sentiment_score", "relevance_score",
-		"factor_vector", "input_tokens", "output_tokens", "estimated_cost_usd",
-	}
+	headers := []string{"Index", "News Source", "URL", "Parent entity", "Child Entity", "Sentiment", "Weight", "Confidence Score", "Cost", "Summary"}
 	if err := writer.Write(headers); err != nil {
 		return nil, err
 	}
 
-	for _, row := range rows {
+	for idx, row := range rows {
 		rec := []string{
-			row.RunID,
-			row.ConfigVersion,
-			row.PipelineProfile,
-			row.Provider,
-			row.Model,
-			row.PromptVersion,
-			row.ArticleID,
-			row.Symbol,
-			row.SessionDate.Format("2006-01-02"),
-			row.SessionLabel,
-			fmt.Sprintf("%.6f", row.SentimentScore),
-			fmt.Sprintf("%.6f", row.RelevanceScore),
-			strings.Join(row.FactorVector, "|"),
-			fmt.Sprintf("%d", row.InputTokens),
-			fmt.Sprintf("%d", row.OutputTokens),
+			strconv.Itoa(idx + 1),
+			strings.TrimSpace(row.NewsSource),
+			strings.TrimSpace(row.URL),
+			strings.TrimSpace(row.ParentEntity),
+			strings.TrimSpace(row.ChildEntity),
+			strings.TrimSpace(row.SentimentDisplay),
+			fmt.Sprintf("%.6f", row.Weight),
+			fmt.Sprintf("%.6f", row.ConfidenceScore),
 			fmt.Sprintf("%.6f", row.EstimatedCostUS),
+			truncateWords(row.Summary, 10),
 		}
 		if err := writer.Write(rec); err != nil {
 			return nil, err
@@ -65,6 +56,17 @@ func (e Exporter) CSV(rows []core.FeatureRow) ([]byte, error) {
 	}
 	writer.Flush()
 	return buf.Bytes(), writer.Error()
+}
+
+func truncateWords(text string, max int) string {
+	words := strings.Fields(strings.TrimSpace(text))
+	if max <= 0 || len(words) == 0 {
+		return ""
+	}
+	if len(words) <= max {
+		return strings.Join(words, " ")
+	}
+	return strings.Join(words[:max], " ")
 }
 
 func (e Exporter) TOON(events []core.MarketAlignedEvent) ([]byte, error) {
