@@ -2,6 +2,7 @@ package enrich
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/soloengine/ai-impact-scrapper/internal/config"
@@ -9,6 +10,16 @@ import (
 	"github.com/soloengine/ai-impact-scrapper/internal/enrich/providers"
 	"github.com/soloengine/ai-impact-scrapper/internal/ingest"
 )
+
+type PairSentimentResult struct {
+	Provider        string
+	Model           string
+	Label           string
+	Score           float64
+	InputTokens     int
+	OutputTokens    int
+	EstimatedCostUS float64
+}
 
 type Enricher struct {
 	mapper    EntityMapper
@@ -66,6 +77,53 @@ func (e *Enricher) EnrichArticle(ctx context.Context, baseMeta core.RunMetadata,
 		RelevanceScore:     relevanceScore,
 		NeedsLLMRefinement: needsLLM,
 	}, nil
+}
+
+func (e *Enricher) ClassifyPairSentiment(ctx context.Context, article core.Article, parent core.EntityMatch, child *core.EntityMatch) PairSentimentResult {
+	text := pairSentimentText(article, parent, child)
+	label, score := deterministicSentiment(text)
+
+	result := PairSentimentResult{
+		Provider: "rules",
+		Model:    "rules",
+		Label:    label,
+		Score:    score,
+	}
+
+	if e.router == nil {
+		return result
+	}
+
+	routed, err := e.router.Enrich(ctx, providers.ClassificationRequest{Text: text})
+	if err != nil {
+		return result
+	}
+
+	result.Provider = routed.Provider
+	result.Model = routed.Model
+	result.Label = routed.Sentiment.Label
+	result.Score = routed.Sentiment.Score
+	result.InputTokens = routed.InputTokens
+	result.OutputTokens = routed.OutputTokens
+	result.EstimatedCostUS = routed.EstimatedCost
+	return result
+}
+
+func pairSentimentText(article core.Article, parent core.EntityMatch, child *core.EntityMatch) string {
+	childSymbol := "N/A"
+	if child != nil {
+		childSymbol = strings.TrimSpace(child.Symbol)
+		if childSymbol == "" {
+			childSymbol = "N/A"
+		}
+	}
+	return strings.TrimSpace(strings.Join([]string{
+		fmt.Sprintf("Parent: %s", strings.TrimSpace(parent.Symbol)),
+		fmt.Sprintf("Child: %s", childSymbol),
+		fmt.Sprintf("Title: %s", strings.TrimSpace(article.Title)),
+		fmt.Sprintf("Summary: %s", strings.TrimSpace(article.Summary)),
+		fmt.Sprintf("Body: %s", strings.TrimSpace(article.Body)),
+	}, "\n"))
 }
 
 func deterministicSentiment(text string) (string, float64) {

@@ -37,22 +37,30 @@ func TestExportCSVReadsFeatureRepository(t *testing.T) {
 	}
 	if err := store.SaveFeatureRows(context.Background(), run.RunID, []core.FeatureRow{
 		{
-			RunID:           run.RunID,
-			ConfigVersion:   cfg.ConfigVersion,
-			PipelineProfile: "cost_optimized",
-			Provider:        "mimo",
-			Model:           "mimo-v2-synthetic",
-			PromptVersion:   "v1",
-			ArticleID:       "a1",
-			Symbol:          "INFY",
-			SessionDate:     time.Now().UTC(),
-			SessionLabel:    "post_close",
-			SentimentScore:  0.2,
-			RelevanceScore:  0.6,
-			FactorVector:    []string{"ai-demand"},
-			InputTokens:     11,
-			OutputTokens:    7,
-			EstimatedCostUS: 0.01,
+			RunID:            run.RunID,
+			ConfigVersion:    cfg.ConfigVersion,
+			PipelineProfile:  "cost_optimized",
+			Provider:         "mimo",
+			Model:            "mimo-v2-synthetic",
+			PromptVersion:    "v1",
+			ArticleID:        "a1",
+			Symbol:           "INFY",
+			SessionDate:      time.Now().UTC(),
+			SessionLabel:     "post_close",
+			SentimentScore:   0.2,
+			RelevanceScore:   0.6,
+			FactorVector:     []string{"ai-demand"},
+			InputTokens:      11,
+			OutputTokens:     7,
+			EstimatedCostUS:  0.01,
+			NewsSource:       "Moneycontrol",
+			URL:              "https://example.com/a1",
+			ParentEntity:     "INFY",
+			ChildEntity:      "N/A",
+			SentimentDisplay: "positive (0.20)",
+			Weight:           1.0,
+			ConfidenceScore:  0.91,
+			Summary:          "Infosys demand remains strong in enterprise cloud programs",
 		},
 	}); err != nil {
 		t.Fatalf("save features: %v", err)
@@ -63,6 +71,9 @@ func TestExportCSVReadsFeatureRepository(t *testing.T) {
 		t.Fatalf("export csv: %v", err)
 	}
 	csv := string(csvBytes)
+	if !strings.Contains(csv, "Index,News Source,URL,Parent entity,Child Entity,Sentiment,Weight,Confidence Score,Cost,Summary") {
+		t.Fatalf("expected business csv header")
+	}
 	if !strings.Contains(csv, "INFY") {
 		t.Fatalf("expected feature row symbol in csv output")
 	}

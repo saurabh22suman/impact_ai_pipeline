@@ -1,7 +1,9 @@
 package unit
 
 import (
+	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/soloengine/ai-impact-scrapper/internal/config"
@@ -27,6 +29,109 @@ func TestLoadConfigIncludesNiftyITByDefault(t *testing.T) {
 	}
 	if !foundTCS {
 		t.Fatalf("expected TCS in default universe")
+	}
+}
+
+func TestDefaultConfigDefinesNiftyITImpactGroup(t *testing.T) {
+	cfg, err := config.Load(filepath.Join("..", "..", "configs"))
+	if err != nil {
+		t.Fatalf("load config: %v", err)
+	}
+
+	if len(cfg.EntityGroups.Groups) == 0 {
+		t.Fatalf("expected default config to define at least one entity group")
+	}
+
+	found := false
+	for _, group := range cfg.EntityGroups.Groups {
+		if group.ParentSymbol != "TCS" {
+			continue
+		}
+		for _, childSymbol := range group.ChildSymbols {
+			if childSymbol == "OPENAI" {
+				found = true
+				break
+			}
+		}
+		if found {
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected default config to include TCS parent group with OPENAI child")
+	}
+}
+
+func TestLoadConfigParsesEntityGroups(t *testing.T) {
+	dir := t.TempDir()
+	writeBaseConfigFiles(t, dir)
+	mustWrite(t, dir, "sources.yaml", "version: v1\nsources:\n  - id: a\n    name: A\n    kind: rss\n    url: https://example.com\n    region: global\n    language: en\n    enabled: true\n    crawl_fallback: false\n")
+	mustWrite(t, dir, "entity_groups.yaml", "version: v1\ngroups:\n  - id: nifty-it-impact\n    parent_symbol: INFY\n    child_symbols: [TCS]\n")
+
+	cfg, err := config.Load(dir)
+	if err != nil {
+		t.Fatalf("load config: %v", err)
+	}
+
+	if len(cfg.EntityGroups.Groups) != 1 {
+		t.Fatalf("expected one entity group, got %d", len(cfg.EntityGroups.Groups))
+	}
+	group := cfg.EntityGroups.Groups[0]
+	if group.ID != "nifty-it-impact" {
+		t.Fatalf("expected group id nifty-it-impact, got %q", group.ID)
+	}
+	if group.ParentSymbol != "INFY" {
+		t.Fatalf("expected parent symbol INFY, got %q", group.ParentSymbol)
+	}
+	if len(group.ChildSymbols) != 1 || group.ChildSymbols[0] != "TCS" {
+		t.Fatalf("expected child symbols [TCS], got %#v", group.ChildSymbols)
+	}
+}
+
+func TestLoadConfigRejectsEntityGroupUnknownSymbol(t *testing.T) {
+	dir := t.TempDir()
+	writeBaseConfigFiles(t, dir)
+	mustWrite(t, dir, "sources.yaml", "version: v1\nsources:\n  - id: a\n    name: A\n    kind: rss\n    url: https://example.com\n    region: global\n    language: en\n    enabled: true\n    crawl_fallback: false\n")
+	mustWrite(t, dir, "entity_groups.yaml", "version: v1\ngroups:\n  - parent_symbol: UNKNOWN\n    child_symbols: [TCS]\n")
+
+	_, err := config.Load(dir)
+	if err == nil {
+		t.Fatalf("expected validation error for unknown group symbol")
+	}
+}
+
+func TestLoadConfigRejectsEntityGroupRoleMismatch(t *testing.T) {
+	dir := t.TempDir()
+	writeBaseConfigFiles(t, dir)
+	mustWrite(t, dir, "sources.yaml", "version: v1\nsources:\n  - id: a\n    name: A\n    kind: rss\n    url: https://example.com\n    region: global\n    language: en\n    enabled: true\n    crawl_fallback: false\n")
+	mustWrite(t, dir, "entity_groups.yaml", "version: v1\ngroups:\n  - parent_symbol: TCS\n    child_symbols: [INFY]\n")
+
+	_, err := config.Load(dir)
+	if err == nil {
+		t.Fatalf("expected validation error for entity group role mismatch")
+	}
+}
+
+func TestLoadConfigAllowsMissingEntityGroupsFile(t *testing.T) {
+	dir := t.TempDir()
+	writeBaseConfigFiles(t, dir)
+	mustWrite(t, dir, "sources.yaml", "version: v1\nsources:\n  - id: a\n    name: A\n    kind: rss\n    url: https://example.com\n    region: global\n    language: en\n    enabled: true\n    crawl_fallback: false\n")
+	if err := os.Remove(filepath.Join(dir, "entity_groups.yaml")); err != nil {
+		t.Fatalf("remove entity_groups.yaml: %v", err)
+	}
+
+	cfg, err := config.Load(dir)
+	if err != nil {
+		t.Fatalf("load config: %v", err)
+	}
+	if len(cfg.EntityGroups.Groups) != 0 {
+		t.Fatalf("expected no entity groups when file is missing, got %d", len(cfg.EntityGroups.Groups))
+	}
+	if cfg.ConfigVersion == "" {
+		t.Fatalf("expected non-empty config version")
+	}
+	if strings.Contains(cfg.ConfigVersion, "++") {
+		t.Fatalf("expected config version without empty segments, got %q", cfg.ConfigVersion)
 	}
 }
 
@@ -94,9 +199,10 @@ func TestLoadConfigRejectsSourceWithMissingRequiredFields(t *testing.T) {
 
 func writeBaseConfigFiles(t *testing.T, dir string) {
 	t.Helper()
-	mustWrite(t, dir, "entities.niftyit.yaml", "version: v1\nentities:\n  - id: t\n    symbol: TCS\n    name: Tata Consultancy Services\n    aliases: [TCS]\n    exchange: NSE\n    sector: IT\n    type: equity\n    enabled: true\n")
-	mustWrite(t, dir, "entities.custom.yaml", "version: v1\nentities: []\n")
+	mustWrite(t, dir, "entities.niftyit.yaml", "version: v1\nentities:\n  - id: i\n    symbol: INFY\n    name: Infosys\n    aliases: [Infosys]\n    exchange: NSE\n    sector: IT\n    role: parent\n    type: equity\n    enabled: true\n")
+	mustWrite(t, dir, "entities.custom.yaml", "version: v1\nentities:\n  - id: t\n    symbol: TCS\n    name: Tata Consultancy Services\n    aliases: [TCS]\n    exchange: NSE\n    sector: IT\n    role: child\n    type: equity\n    enabled: true\n")
 	mustWrite(t, dir, "factors.yaml", "version: v1\nfactors:\n  - id: f\n    name: Demand\n    category: demand\n    keywords: [ai]\n    weight: 1\n")
 	mustWrite(t, dir, "providers.yaml", "version: v1\ndefaults:\n  routing_policy: lowest\n  prompt_version: v1\n  circuit_breaker_failures: 3\n  circuit_breaker_seconds: 30\n  retry_count: 2\n  backoff_millis: 100\nproviders:\n  - name: gemini\n    model: gemini-2.0-flash\n    enabled: true\n    price_per_1k_input: 0.1\n    price_per_1k_output: 0.2\n    max_input_tokens: 1000\n    max_output_tokens: 500\n    timeout_seconds: 10\n    max_requests_per_min: 60\nfallback_chain: [gemini:gemini-2.0-flash]\nper_run_token_budget: 1000\nper_provider_token_budget: 1000\nper_run_cost_budget_usd: 1\nper_provider_cost_budget_usd: 1\n")
 	mustWrite(t, dir, "pipelines.yaml", "version: v1\ndefault_profile: cost\nprofiles:\n  - name: cost\n    description: d\n    ambiguity_threshold: 0.5\n    novelty_threshold: 0.6\n    min_relevance_score: 0.2\n    enable_raw_artifacts: false\n    llm_budget_tokens: 1000\n    session: nse\n")
+	mustWrite(t, dir, "entity_groups.yaml", "version: v1\ngroups: []\n")
 }

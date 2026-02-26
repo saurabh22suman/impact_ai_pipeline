@@ -40,3 +40,148 @@ entities:
     sector: Index
     type: index
     enabled: true
+
+  - id: theme-openai
+    symbol: OPENAI
+    name: OpenAI
+    aliases: ["OpenAI"]
+    exchange: GLOBAL
+    sector: AI Platform
+    role: child
+    type: equity
+    enabled: true
+  - id: theme-gemini
+    symbol: GEMINI
+    name: Gemini
+    aliases: ["Gemini", "Google Gemini"]
+    exchange: GLOBAL
+    sector: AI Platform
+    role: child
+    type: equity
+    enabled: true
+  - id: theme-anthropic
+    symbol: ANTHROPIC
+    name: Anthropic
+    aliases: ["Anthropic", "Claude"]
+    exchange: GLOBAL
+    sector: AI Platform
+    role: child
+    type: equity
+    enabled: true
+  - id: theme-deepseek
+    symbol: DEEPSEEK
+    name: DeepSeek
+    aliases: ["DeepSeek"]
+    exchange: GLOBAL
+    sector: AI Platform
+    role: child
+    type: equity
+    enabled: true
+  - id: theme-bytedance
+    symbol: BYTEDANCE
+    name: ByteDance
+    aliases: ["ByteDance"]
+    exchange: GLOBAL
+    sector: Internet
+    role: child
+    type: equity
+    enabled: true
+  - id: theme-xai
+    symbol: XAI
+    name: xAI
+    aliases: ["xAI", "XAI"]
+    exchange: GLOBAL
+    sector: AI Platform
+    role: child
+    type: equity
+    enabled: true
+  - id: theme-geopolitics
+    symbol: GEOPOLITICS
+    name: Geopolitics
+    aliases: ["Geopolitics"]
+    exchange: GLOBAL
+    sector: Macro
+    role: child
+    type: equity
+    enabled: true
+  - id: theme-gold-silver-copper
+    symbol: GOLD_SILVER_COPPER
+    name: Gold Silver Copper
+    aliases: ["Gold", "Silver", "Copper", "Gold Silver Copper"]
+    exchange: GLOBAL
+    sector: Commodities
+    role: child
+    type: equity
+    enabled: true
+  - id: theme-semiconductor
+    symbol: SEMICONDUCTOR
+    name: Semiconductor
+    aliases: ["Semiconductor"]
+    exchange: GLOBAL
+    sector: Semiconductor
+    role: child
+    type: equity
+    enabled: true
+  - id: theme-nvidia
+    symbol: NVIDIA
+    name: NVIDIA
+    aliases: ["NVIDIA", "NVDA"]
+    exchange: NASDAQ
+    sector: Semiconductor
+    role: child
+    type: equity
+    enabled: true
+  - id: theme-economics
+    symbol: ECONOMICS
+    name: Economics
+    aliases: ["Economics", "Macro Economics"]
+    exchange: GLOBAL
+    sector: Macro
+    role: child
+    type: equity
+    enabled: true
+  - id: theme-energy-electricity
+    symbol: ENERGY_ELECTRICITY
+    name: Energy Electricity
+    aliases: ["Energy", "Electricity", "Energy Electricity"]
+    exchange: GLOBAL
+    sector: Energy
+    role: child
+    type: equity
+    enabled: true
+  - id: theme-ai
+    symbol: AI
+    name: Artificial Intelligence
+    aliases: ["AI", "Artificial Intelligence"]
+    exchange: GLOBAL
+    sector: Technology
+    role: child
+    type: equity
+    enabled: true
+  - id: theme-dram
+    symbol: DRAM
+    name: DRAM
+    aliases: ["DRAM", "Memory"]
+    exchange: GLOBAL
+    sector: Semiconductor
+    role: child
+    type: equity
+    enabled: true
+  - id: theme-chips
+    symbol: CHIPS
+    name: Chips
+    aliases: ["Chips", "Semiconductor Chips"]
+    exchange: GLOBAL
+    sector: Semiconductor
+    role: child
+    type: equity
+    enabled: true
+  - id: theme-india-us-relations
+    symbol: INDIA_US_RELATIONS
+    name: India US Relations
+    aliases: ["India US Relations", "India-US Relations"]
+    exchange: GLOBAL
+    sector: Geopolitics
+    role: child
+    type: equity
+    enabled: true
