@@ -6,6 +6,7 @@ entities:
     aliases: ["TCS", "Tata Consultancy", "Tata Consultancy Services"]
     exchange: NSE
     sector: IT
+    role: parent
     type: equity
     enabled: true
   - id: nse-infy
@@ -14,6 +15,7 @@ entities:
     aliases: ["Infosys", "INFY", "Infosys Ltd"]
     exchange: NSE
     sector: IT
+    role: parent
     type: equity
     enabled: true
   - id: nse-hcltech
@@ -22,6 +24,7 @@ entities:
     aliases: ["HCL Tech", "HCL Technologies", "HCLTECH"]
     exchange: NSE
     sector: IT
+    role: parent
     type: equity
     enabled: true
   - id: nse-wipro
@@ -30,6 +33,7 @@ entities:
     aliases: ["Wipro", "WIPRO"]
     exchange: NSE
     sector: IT
+    role: parent
     type: equity
     enabled: true
   - id: nse-techm
@@ -38,6 +42,7 @@ entities:
     aliases: ["Tech Mahindra", "TECHM"]
     exchange: NSE
     sector: IT
+    role: parent
     type: equity
     enabled: true
   - id: nse-ltim
@@ -46,6 +51,7 @@ entities:
     aliases: ["LTIMindtree", "LTIM", "L&T Mindtree"]
     exchange: NSE
     sector: IT
+    role: parent
     type: equity
     enabled: true
   - id: nse-mphasis
@@ -54,6 +60,7 @@ entities:
     aliases: ["Mphasis", "MPHASIS"]
     exchange: NSE
     sector: IT
+    role: parent
     type: equity
     enabled: true
   - id: nse-coforge
@@ -62,6 +69,7 @@ entities:
     aliases: ["Coforge", "COFORGE"]
     exchange: NSE
     sector: IT
+    role: parent
     type: equity
     enabled: true
   - id: nse-ofss
@@ -70,6 +78,7 @@ entities:
     aliases: ["OFSS", "Oracle Financial Services"]
     exchange: NSE
     sector: IT
+    role: parent
     type: equity
     enabled: true
   - id: nse-persistent
@@ -78,5 +87,6 @@ entities:
     aliases: ["Persistent", "PERSISTENT", "Persistent Systems"]
     exchange: NSE
     sector: IT
+    role: parent
     type: equity
     enabled: true

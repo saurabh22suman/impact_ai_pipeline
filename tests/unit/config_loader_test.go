@@ -32,6 +32,36 @@ func TestLoadConfigIncludesNiftyITByDefault(t *testing.T) {
 	}
 }
 
+func TestDefaultConfigDefinesNiftyITImpactGroup(t *testing.T) {
+	cfg, err := config.Load(filepath.Join("..", "..", "configs"))
+	if err != nil {
+		t.Fatalf("load config: %v", err)
+	}
+
+	if len(cfg.EntityGroups.Groups) == 0 {
+		t.Fatalf("expected default config to define at least one entity group")
+	}
+
+	found := false
+	for _, group := range cfg.EntityGroups.Groups {
+		if group.ParentSymbol != "TCS" {
+			continue
+		}
+		for _, childSymbol := range group.ChildSymbols {
+			if childSymbol == "OPENAI" {
+				found = true
+				break
+			}
+		}
+		if found {
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected default config to include TCS parent group with OPENAI child")
+	}
+}
+
 func TestLoadConfigParsesEntityGroups(t *testing.T) {
 	dir := t.TempDir()
 	writeBaseConfigFiles(t, dir)
