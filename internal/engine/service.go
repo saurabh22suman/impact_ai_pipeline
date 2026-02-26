@@ -68,7 +68,7 @@ func (s *Service) Run(ctx context.Context, req core.RunRequest, ingested []core.
 	events := make([]core.MarketAlignedEvent, 0)
 	featureRows := make([]core.FeatureRow, 0)
 
-	entities, err := s.selectEntities(req.Entities)
+	entities, impactCfg, err := s.selectEntities(req.Entities)
 	if err != nil {
 		return core.RunResult{}, err
 	}
@@ -90,7 +90,7 @@ func (s *Service) Run(ctx context.Context, req core.RunRequest, ingested []core.
 			LabelWindowTo: market.LabelWindowEnd(article.PublishedAt),
 		}
 		events = append(events, aligned)
-		featureRows = append(featureRows, buildFeatureRows(aligned)...)
+		featureRows = append(featureRows, buildFeatureRows(aligned, impactCfg)...)
 	}
 
 	result := core.RunResult{
@@ -199,17 +199,19 @@ func (s *Service) persistRunArtifacts(ctx context.Context, runID string, req cor
 	return nil
 }
 
-func (s *Service) selectEntities(requested []string) ([]config.Entity, error) {
+func (s *Service) selectEntities(requested []string) ([]config.Entity, impactModeConfig, error) {
 	all := s.cfg.EffectiveEntities()
 	if len(requested) == 0 {
-		return all, nil
+		return all, impactModeConfig{}, nil
 	}
 
 	entityLookup := map[string]config.Entity{}
+	bySymbol := map[string]config.Entity{}
 	for _, entity := range all {
 		symbol := strings.ToUpper(strings.TrimSpace(entity.Symbol))
 		if symbol != "" {
 			entityLookup[symbol] = entity
+			bySymbol[symbol] = entity
 		}
 		name := strings.ToUpper(strings.TrimSpace(entity.Name))
 		if name != "" {
@@ -251,58 +253,25 @@ func (s *Service) selectEntities(requested []string) ([]config.Entity, error) {
 		if len(missing) == 0 {
 			missing = append(missing, "no matching entities")
 		}
-		return nil, fmt.Errorf("%w: unknown entities: %s", ErrInvalidEntitySelection, strings.Join(missing, ", "))
-	}
-	return selected, nil
-}
-
-func buildFeatureRows(event core.MarketAlignedEvent) []core.FeatureRow {
-	factorIDs := make([]string, 0, len(event.Event.Factors))
-	for _, factor := range event.Event.Factors {
-		factorIDs = append(factorIDs, factor.FactorID)
+		return nil, impactModeConfig{}, fmt.Errorf("%w: unknown entities: %s", ErrInvalidEntitySelection, strings.Join(missing, ", "))
 	}
 
-	if len(event.Event.Entities) == 0 {
-		return []core.FeatureRow{{
-			RunID:           event.Event.Metadata.RunID,
-			ConfigVersion:   event.Event.Metadata.ConfigVersion,
-			PipelineProfile: event.Event.Metadata.PipelineProfile,
-			Provider:        event.Event.Metadata.Provider,
-			Model:           event.Event.Metadata.Model,
-			PromptVersion:   event.Event.Metadata.PromptVersion,
-			ArticleID:       event.Event.Article.ID,
-			Symbol:          "UNKNOWN",
-			SessionDate:     event.Session.SessionDate,
-			SessionLabel:    event.Session.SessionLabel,
-			SentimentScore:  event.Event.SentimentScore,
-			RelevanceScore:  event.Event.RelevanceScore,
-			FactorVector:    factorIDs,
-			InputTokens:     event.Event.Metadata.InputTokens,
-			OutputTokens:    event.Event.Metadata.OutputTokens,
-			EstimatedCostUS: event.Event.Metadata.EstimatedCostUS,
-		}}
+	impact := newImpactModeConfig(s.cfg.EntityGroups.Groups, selected, all)
+	if !impact.Enabled {
+		return selected, impact, nil
 	}
 
-	rows := make([]core.FeatureRow, 0, len(event.Event.Entities))
-	for _, entity := range event.Event.Entities {
-		rows = append(rows, core.FeatureRow{
-			RunID:           event.Event.Metadata.RunID,
-			ConfigVersion:   event.Event.Metadata.ConfigVersion,
-			PipelineProfile: event.Event.Metadata.PipelineProfile,
-			Provider:        event.Event.Metadata.Provider,
-			Model:           event.Event.Metadata.Model,
-			PromptVersion:   event.Event.Metadata.PromptVersion,
-			ArticleID:       event.Event.Article.ID,
-			Symbol:          entity.Symbol,
-			SessionDate:     event.Session.SessionDate,
-			SessionLabel:    event.Session.SessionLabel,
-			SentimentScore:  event.Event.SentimentScore,
-			RelevanceScore:  event.Event.RelevanceScore,
-			FactorVector:    factorIDs,
-			InputTokens:     event.Event.Metadata.InputTokens,
-			OutputTokens:    event.Event.Metadata.OutputTokens,
-			EstimatedCostUS: event.Event.Metadata.EstimatedCostUS,
-		})
+	for childSymbol := range impact.ChildSymbols {
+		if _, exists := seen[childSymbol]; exists {
+			continue
+		}
+		entity, ok := bySymbol[childSymbol]
+		if !ok {
+			continue
+		}
+		seen[childSymbol] = struct{}{}
+		selected = append(selected, entity)
 	}
-	return rows
+
+	return selected, impact, nil
 }

@@ -1,0 +1,136 @@
+package unit
+
+import (
+	"context"
+	"path/filepath"
+	"testing"
+	"time"
+
+	"github.com/soloengine/ai-impact-scrapper/internal/config"
+	"github.com/soloengine/ai-impact-scrapper/internal/core"
+	"github.com/soloengine/ai-impact-scrapper/internal/engine"
+	"github.com/soloengine/ai-impact-scrapper/internal/storage"
+)
+
+func TestServiceRunBuildsParentChildCrossProductRows(t *testing.T) {
+	cfg := loadImpactTestConfig(t)
+	svc := engine.NewService(cfg, storage.NewInMemoryStore())
+
+	now := time.Now().UTC()
+	articles := []core.Article{{
+		ID:          "a1",
+		SourceID:    "test-source",
+		SourceName:  "Test Source",
+		URL:         "https://example.com/a1",
+		Title:       "INFY expands cloud work with OPENAI and GEMINI",
+		Summary:     "INFY announces platform partnerships",
+		Body:        "INFY OPENAI GEMINI cloud",
+		Language:    "en",
+		Region:      "india",
+		PublishedAt: now,
+		IngestedAt:  now,
+	}}
+
+	result, err := svc.Run(context.Background(), core.RunRequest{Entities: []string{"INFY"}, PipelineProfile: "impact_test"}, articles)
+	if err != nil {
+		t.Fatalf("service run: %v", err)
+	}
+
+	if len(result.FeatureRows) != 2 {
+		t.Fatalf("expected 2 feature rows, got %d", len(result.FeatureRows))
+	}
+
+	pairs := map[string]bool{}
+	for _, row := range result.FeatureRows {
+		pairs[row.ParentEntity+"|"+row.ChildEntity] = true
+	}
+	if !pairs["INFY|OPENAI"] {
+		t.Fatalf("missing INFY|OPENAI pair")
+	}
+	if !pairs["INFY|GEMINI"] {
+		t.Fatalf("missing INFY|GEMINI pair")
+	}
+}
+
+func TestServiceRunBuildsParentOnlyRowsWithNAChild(t *testing.T) {
+	cfg := loadImpactTestConfig(t)
+	svc := engine.NewService(cfg, storage.NewInMemoryStore())
+
+	now := time.Now().UTC()
+	articles := []core.Article{{
+		ID:          "a2",
+		SourceID:    "test-source",
+		SourceName:  "Test Source",
+		URL:         "https://example.com/a2",
+		Title:       "INFY reports cloud contract wins",
+		Summary:     "INFY wins deals",
+		Body:        "INFY cloud",
+		Language:    "en",
+		Region:      "india",
+		PublishedAt: now,
+		IngestedAt:  now,
+	}}
+
+	result, err := svc.Run(context.Background(), core.RunRequest{Entities: []string{"INFY"}, PipelineProfile: "impact_test"}, articles)
+	if err != nil {
+		t.Fatalf("service run: %v", err)
+	}
+
+	if len(result.FeatureRows) != 1 {
+		t.Fatalf("expected 1 feature row, got %d", len(result.FeatureRows))
+	}
+	if result.FeatureRows[0].ParentEntity != "INFY" {
+		t.Fatalf("expected parent INFY, got %s", result.FeatureRows[0].ParentEntity)
+	}
+	if result.FeatureRows[0].ChildEntity != "N/A" {
+		t.Fatalf("expected child N/A, got %s", result.FeatureRows[0].ChildEntity)
+	}
+}
+
+func TestServiceRunSkipsArticlesWithoutParentMatchInImpactMode(t *testing.T) {
+	cfg := loadImpactTestConfig(t)
+	svc := engine.NewService(cfg, storage.NewInMemoryStore())
+
+	now := time.Now().UTC()
+	articles := []core.Article{{
+		ID:          "a3",
+		SourceID:    "test-source",
+		SourceName:  "Test Source",
+		URL:         "https://example.com/a3",
+		Title:       "OPENAI cloud tooling update",
+		Summary:     "OPENAI launches feature",
+		Body:        "OPENAI cloud",
+		Language:    "en",
+		Region:      "india",
+		PublishedAt: now,
+		IngestedAt:  now,
+	}}
+
+	result, err := svc.Run(context.Background(), core.RunRequest{Entities: []string{"INFY"}, PipelineProfile: "impact_test"}, articles)
+	if err != nil {
+		t.Fatalf("service run: %v", err)
+	}
+
+	if len(result.FeatureRows) != 0 {
+		t.Fatalf("expected 0 feature rows, got %d", len(result.FeatureRows))
+	}
+}
+
+func loadImpactTestConfig(t *testing.T) config.AppConfig {
+	t.Helper()
+
+	dir := t.TempDir()
+	mustWrite(t, dir, "sources.yaml", "version: v1\nsources:\n  - id: test-source\n    name: Test Source\n    kind: rss\n    url: https://example.com/rss\n    region: india\n    language: en\n    enabled: true\n    crawl_fallback: false\n")
+	mustWrite(t, dir, "entities.niftyit.yaml", "version: v1\nentities:\n  - id: nse-infy\n    symbol: INFY\n    name: Infosys Limited\n    aliases: [INFY, Infosys]\n    exchange: NSE\n    sector: IT\n    role: parent\n    type: equity\n    enabled: true\n")
+	mustWrite(t, dir, "entities.custom.yaml", "version: v1\nentities:\n  - id: child-openai\n    symbol: OPENAI\n    name: OpenAI\n    aliases: [OPENAI, OpenAI]\n    exchange: GLOBAL\n    sector: AI\n    role: child\n    type: equity\n    enabled: true\n  - id: child-gemini\n    symbol: GEMINI\n    name: Gemini\n    aliases: [GEMINI, Gemini]\n    exchange: GLOBAL\n    sector: AI\n    role: child\n    type: equity\n    enabled: true\n")
+	mustWrite(t, dir, "entity_groups.yaml", "version: v1\ngroups:\n  - id: nifty-it-impact\n    parent_symbol: INFY\n    child_symbols: [OPENAI, GEMINI]\n")
+	mustWrite(t, dir, "factors.yaml", "version: v1\nfactors:\n  - id: f-cloud\n    name: Cloud\n    category: demand\n    keywords: [cloud]\n    weight: 1\n")
+	mustWrite(t, dir, "providers.yaml", "version: v1\ndefaults:\n  routing_policy: lowest_cost\n  prompt_version: v1\n  circuit_breaker_failures: 3\n  circuit_breaker_seconds: 30\n  retry_count: 2\n  backoff_millis: 100\nproviders:\n  - name: gemini\n    model: gemini-2.0-flash\n    enabled: true\n    price_per_1k_input: 0.1\n    price_per_1k_output: 0.1\n    max_input_tokens: 1024\n    max_output_tokens: 512\n    timeout_seconds: 10\n    max_requests_per_min: 60\nfallback_chain: [gemini:gemini-2.0-flash]\nper_run_token_budget: 100000\nper_provider_token_budget: 100000\nper_run_cost_budget_usd: 100\nper_provider_cost_budget_usd: 100\n")
+	mustWrite(t, dir, "pipelines.yaml", "version: v1\ndefault_profile: impact_test\nprofiles:\n  - name: impact_test\n    description: impact test profile\n    ambiguity_threshold: 0.9\n    novelty_threshold: 1.0\n    min_relevance_score: 0.0\n    enable_raw_artifacts: false\n    llm_budget_tokens: 1000\n    session: nse\n")
+
+	cfg, err := config.Load(filepath.Clean(dir))
+	if err != nil {
+		t.Fatalf("load config: %v", err)
+	}
+	return cfg
+}

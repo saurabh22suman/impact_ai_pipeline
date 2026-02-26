@@ -95,22 +95,30 @@ type MarketAlignedEvent struct {
 }
 
 type FeatureRow struct {
-	RunID           string    `json:"run_id"`
-	ConfigVersion   string    `json:"config_version"`
-	PipelineProfile string    `json:"pipeline_profile"`
-	Provider        string    `json:"provider"`
-	Model           string    `json:"model"`
-	PromptVersion   string    `json:"prompt_version"`
-	ArticleID       string    `json:"article_id"`
-	Symbol          string    `json:"symbol"`
-	SessionDate     time.Time `json:"session_date"`
-	SessionLabel    string    `json:"session_label"`
-	SentimentScore  float64   `json:"sentiment_score"`
-	RelevanceScore  float64   `json:"relevance_score"`
-	FactorVector    []string  `json:"factor_vector"`
-	InputTokens     int       `json:"input_tokens"`
-	OutputTokens    int       `json:"output_tokens"`
-	EstimatedCostUS float64   `json:"estimated_cost_usd"`
+	RunID            string    `json:"run_id"`
+	ConfigVersion    string    `json:"config_version"`
+	PipelineProfile  string    `json:"pipeline_profile"`
+	Provider         string    `json:"provider"`
+	Model            string    `json:"model"`
+	PromptVersion    string    `json:"prompt_version"`
+	ArticleID        string    `json:"article_id"`
+	Symbol           string    `json:"symbol"`
+	SessionDate      time.Time `json:"session_date"`
+	SessionLabel     string    `json:"session_label"`
+	SentimentScore   float64   `json:"sentiment_score"`
+	RelevanceScore   float64   `json:"relevance_score"`
+	FactorVector     []string  `json:"factor_vector"`
+	InputTokens      int       `json:"input_tokens"`
+	OutputTokens     int       `json:"output_tokens"`
+	EstimatedCostUS  float64   `json:"estimated_cost_usd"`
+	NewsSource       string    `json:"news_source"`
+	URL              string    `json:"url"`
+	ParentEntity     string    `json:"parent_entity"`
+	ChildEntity      string    `json:"child_entity"`
+	SentimentDisplay string    `json:"sentiment_display"`
+	Weight           float64   `json:"weight"`
+	ConfidenceScore  float64   `json:"confidence_score"`
+	Summary          string    `json:"summary"`
 }
 
 type RunResult struct {
