@@ -3,6 +3,7 @@ package unit
 import (
 	"context"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -43,6 +44,15 @@ func TestServiceRunBuildsParentChildCrossProductRows(t *testing.T) {
 	pairs := map[string]bool{}
 	for _, row := range result.FeatureRows {
 		pairs[row.ParentEntity+"|"+row.ChildEntity] = true
+		if !strings.Contains(row.SentimentDisplay, "(") || !strings.Contains(row.SentimentDisplay, ")") {
+			t.Fatalf("expected sentiment display with parentheses, got %q", row.SentimentDisplay)
+		}
+		if row.Weight <= 0 {
+			t.Fatalf("expected positive weight, got %f", row.Weight)
+		}
+		if row.ConfidenceScore <= 0 {
+			t.Fatalf("expected positive confidence score, got %f", row.ConfidenceScore)
+		}
 	}
 	if !pairs["INFY|OPENAI"] {
 		t.Fatalf("missing INFY|OPENAI pair")
@@ -84,6 +94,15 @@ func TestServiceRunBuildsParentOnlyRowsWithNAChild(t *testing.T) {
 	}
 	if result.FeatureRows[0].ChildEntity != "N/A" {
 		t.Fatalf("expected child N/A, got %s", result.FeatureRows[0].ChildEntity)
+	}
+	if !strings.Contains(result.FeatureRows[0].SentimentDisplay, "(") || !strings.Contains(result.FeatureRows[0].SentimentDisplay, ")") {
+		t.Fatalf("expected sentiment display with parentheses, got %q", result.FeatureRows[0].SentimentDisplay)
+	}
+	if result.FeatureRows[0].Weight <= 0 {
+		t.Fatalf("expected positive weight, got %f", result.FeatureRows[0].Weight)
+	}
+	if result.FeatureRows[0].ConfidenceScore <= 0 {
+		t.Fatalf("expected positive confidence score, got %f", result.FeatureRows[0].ConfidenceScore)
 	}
 }
 

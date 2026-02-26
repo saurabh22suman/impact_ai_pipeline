@@ -1,7 +1,9 @@
 package engine
 
 import (
+	"context"
 	"fmt"
+	"math"
 	"sort"
 	"strings"
 
@@ -93,9 +95,9 @@ func newImpactModeConfig(groups []config.EntityGroup, requested []config.Entity,
 	}
 }
 
-func buildFeatureRows(event core.MarketAlignedEvent, impact impactModeConfig) []core.FeatureRow {
+func (s *Service) buildFeatureRows(ctx context.Context, event core.MarketAlignedEvent, impact impactModeConfig) []core.FeatureRow {
 	if impact.Enabled {
-		rows := buildImpactFeatureRows(event, impact)
+		rows := s.buildImpactFeatureRows(ctx, event, impact)
 		if rows == nil {
 			return []core.FeatureRow{}
 		}
@@ -168,7 +170,12 @@ func buildFeatureRows(event core.MarketAlignedEvent, impact impactModeConfig) []
 	return rows
 }
 
-func buildImpactFeatureRows(event core.MarketAlignedEvent, impact impactModeConfig) []core.FeatureRow {
+type impactPairSpec struct {
+	parent core.EntityMatch
+	child  *core.EntityMatch
+}
+
+func (s *Service) buildImpactFeatureRows(ctx context.Context, event core.MarketAlignedEvent, impact impactModeConfig) []core.FeatureRow {
 	parents := make([]core.EntityMatch, 0)
 	childrenBySymbol := map[string]core.EntityMatch{}
 	for _, match := range event.Event.Entities {
@@ -210,12 +217,12 @@ func buildImpactFeatureRows(event core.MarketAlignedEvent, impact impactModeConf
 		factorIDs = append(factorIDs, factor.FactorID)
 	}
 
-	rows := make([]core.FeatureRow, 0, len(parents))
+	pairSpecs := make([]impactPairSpec, 0, len(parents))
 	for _, parent := range parents {
 		parentSymbol := strings.ToUpper(strings.TrimSpace(parent.Symbol))
 		allowedChildren := impact.ChildSymbolsByParent[parentSymbol]
 		if len(allowedChildren) == 0 {
-			rows = append(rows, impactFeatureRow(event, factorIDs, parent, nil))
+			pairSpecs = append(pairSpecs, impactPairSpec{parent: parent})
 			continue
 		}
 
@@ -228,7 +235,7 @@ func buildImpactFeatureRows(event core.MarketAlignedEvent, impact impactModeConf
 			matchedChildren = append(matchedChildren, child)
 		}
 		if len(matchedChildren) == 0 {
-			rows = append(rows, impactFeatureRow(event, factorIDs, parent, nil))
+			pairSpecs = append(pairSpecs, impactPairSpec{parent: parent})
 			continue
 		}
 
@@ -237,45 +244,182 @@ func buildImpactFeatureRows(event core.MarketAlignedEvent, impact impactModeConf
 		})
 		for _, child := range matchedChildren {
 			childCopy := child
-			rows = append(rows, impactFeatureRow(event, factorIDs, parent, &childCopy))
+			pairSpecs = append(pairSpecs, impactPairSpec{parent: parent, child: &childCopy})
 		}
 	}
+
+	if len(pairSpecs) == 0 {
+		return nil
+	}
+
+	parentWeights := normalizeParentWeights(parents)
+	rows := make([]core.FeatureRow, 0, len(pairSpecs))
+	for idx, pair := range pairSpecs {
+		pairSentiment := s.classifyPairSentiment(ctx, event, pair)
+		baseInput := allocateInt(event.Event.Metadata.InputTokens, len(pairSpecs), idx)
+		baseOutput := allocateInt(event.Event.Metadata.OutputTokens, len(pairSpecs), idx)
+		baseCost := 0.0
+		if len(pairSpecs) > 0 {
+			baseCost = event.Event.Metadata.EstimatedCostUS / float64(len(pairSpecs))
+		}
+
+		childEntity := "N/A"
+		entityConfidence := pair.parent.Confidence
+		if pair.child != nil {
+			childEntity = pair.child.Symbol
+			entityConfidence = (pair.parent.Confidence + pair.child.Confidence) / 2.0
+		}
+
+		confidence := pairConfidence(entityConfidence, pairSentiment.Score)
+		provider := pairSentiment.Provider
+		if strings.TrimSpace(provider) == "" {
+			provider = event.Event.Metadata.Provider
+		}
+		model := pairSentiment.Model
+		if strings.TrimSpace(model) == "" {
+			model = event.Event.Metadata.Model
+		}
+
+		rows = append(rows, core.FeatureRow{
+			RunID:            event.Event.Metadata.RunID,
+			ConfigVersion:    event.Event.Metadata.ConfigVersion,
+			PipelineProfile:  event.Event.Metadata.PipelineProfile,
+			Provider:         provider,
+			Model:            model,
+			PromptVersion:    event.Event.Metadata.PromptVersion,
+			ArticleID:        event.Event.Article.ID,
+			Symbol:           pair.parent.Symbol,
+			SessionDate:      event.Session.SessionDate,
+			SessionLabel:     event.Session.SessionLabel,
+			SentimentScore:   pairSentiment.Score,
+			RelevanceScore:   event.Event.RelevanceScore,
+			FactorVector:     factorIDs,
+			InputTokens:      baseInput + pairSentiment.InputTokens,
+			OutputTokens:     baseOutput + pairSentiment.OutputTokens,
+			EstimatedCostUS:  baseCost + pairSentiment.EstimatedCostUS,
+			NewsSource:       event.Event.Article.SourceName,
+			URL:              event.Event.Article.URL,
+			ParentEntity:     pair.parent.Symbol,
+			ChildEntity:      childEntity,
+			SentimentDisplay: formatSentimentDisplay(pairSentiment.Label, pairSentiment.Score),
+			Weight:           parentWeights[strings.ToUpper(strings.TrimSpace(pair.parent.Symbol))],
+			ConfidenceScore:  confidence,
+			Summary:          featureSummary(event.Event.Article),
+		})
+	}
+
 	return rows
 }
 
-func impactFeatureRow(event core.MarketAlignedEvent, factorIDs []string, parent core.EntityMatch, child *core.EntityMatch) core.FeatureRow {
-	confidence := parent.Confidence
-	childEntity := "N/A"
+func (s *Service) classifyPairSentiment(ctx context.Context, event core.MarketAlignedEvent, pair impactPairSpec) pairSentimentResult {
+	if s != nil && s.enricher != nil {
+		result := s.enricher.ClassifyPairSentiment(ctx, event.Event.Article, pair.parent, pair.child)
+		return pairSentimentResult(result)
+	}
+
+	label, score := fallbackPairSentiment(event.Event.Article, pair.parent, pair.child)
+	return pairSentimentResult{
+		Provider: "rules",
+		Model:    "rules",
+		Label:    label,
+		Score:    score,
+	}
+}
+
+type pairSentimentResult struct {
+	Provider        string
+	Model           string
+	Label           string
+	Score           float64
+	InputTokens     int
+	OutputTokens    int
+	EstimatedCostUS float64
+}
+
+func fallbackPairSentiment(article core.Article, parent core.EntityMatch, child *core.EntityMatch) (string, float64) {
+	childSymbol := "N/A"
 	if child != nil {
-		childEntity = child.Symbol
-		confidence = (parent.Confidence + child.Confidence) / 2.0
+		childSymbol = child.Symbol
 	}
-	return core.FeatureRow{
-		RunID:            event.Event.Metadata.RunID,
-		ConfigVersion:    event.Event.Metadata.ConfigVersion,
-		PipelineProfile:  event.Event.Metadata.PipelineProfile,
-		Provider:         event.Event.Metadata.Provider,
-		Model:            event.Event.Metadata.Model,
-		PromptVersion:    event.Event.Metadata.PromptVersion,
-		ArticleID:        event.Event.Article.ID,
-		Symbol:           parent.Symbol,
-		SessionDate:      event.Session.SessionDate,
-		SessionLabel:     event.Session.SessionLabel,
-		SentimentScore:   event.Event.SentimentScore,
-		RelevanceScore:   event.Event.RelevanceScore,
-		FactorVector:     factorIDs,
-		InputTokens:      event.Event.Metadata.InputTokens,
-		OutputTokens:     event.Event.Metadata.OutputTokens,
-		EstimatedCostUS:  event.Event.Metadata.EstimatedCostUS,
-		NewsSource:       event.Event.Article.SourceName,
-		URL:              event.Event.Article.URL,
-		ParentEntity:     parent.Symbol,
-		ChildEntity:      childEntity,
-		SentimentDisplay: formatSentimentDisplay(event.Event.SentimentLabel, event.Event.SentimentScore),
-		Weight:           1.0,
-		ConfidenceScore:  confidence,
-		Summary:          featureSummary(event.Event.Article),
+	text := strings.Join([]string{article.Title, article.Summary, article.Body, parent.Symbol, childSymbol}, " ")
+	return deterministicSentimentFallback(text)
+}
+
+func deterministicSentimentFallback(text string) (string, float64) {
+	lower := strings.ToLower(text)
+	score := 0.0
+
+	for _, token := range []string{"growth", "strong", "beat", "upside", "upgrade", "surge"} {
+		if strings.Contains(lower, token) {
+			score += 0.15
+		}
 	}
+	for _, token := range []string{"weak", "miss", "downside", "downgrade", "delay", "cut"} {
+		if strings.Contains(lower, token) {
+			score -= 0.15
+		}
+	}
+
+	label := "neutral"
+	if score > 0.1 {
+		label = "positive"
+	}
+	if score < -0.1 {
+		label = "negative"
+	}
+	return label, score
+}
+
+func normalizeParentWeights(parents []core.EntityMatch) map[string]float64 {
+	weights := map[string]float64{}
+	if len(parents) == 0 {
+		return weights
+	}
+	total := 0.0
+	for _, parent := range parents {
+		if parent.Confidence > 0 {
+			total += parent.Confidence
+		}
+	}
+	if total <= 0 {
+		equal := 1.0 / float64(len(parents))
+		for _, parent := range parents {
+			weights[strings.ToUpper(strings.TrimSpace(parent.Symbol))] = equal
+		}
+		return weights
+	}
+	for _, parent := range parents {
+		symbol := strings.ToUpper(strings.TrimSpace(parent.Symbol))
+		weights[symbol] = parent.Confidence / total
+	}
+	return weights
+}
+
+func pairConfidence(entityConfidence float64, sentimentScore float64) float64 {
+	magnitude := math.Abs(sentimentScore)
+	if magnitude > 1 {
+		magnitude = 1
+	}
+	confidence := entityConfidence*(0.7+0.3*magnitude)
+	if confidence < 0 {
+		return 0
+	}
+	if confidence > 1 {
+		return 1
+	}
+	return confidence
+}
+
+func allocateInt(total, parts, idx int) int {
+	if parts <= 0 || total <= 0 {
+		return 0
+	}
+	base := total / parts
+	remainder := total % parts
+	if idx < remainder {
+		return base + 1
+	}
+	return base
 }
 
 func formatSentimentDisplay(label string, score float64) string {
@@ -283,7 +427,7 @@ func formatSentimentDisplay(label string, score float64) string {
 	if cleanLabel == "" {
 		cleanLabel = "neutral"
 	}
-	return fmt.Sprintf("%s %.2f", cleanLabel, score)
+	return fmt.Sprintf("%s (%.2f)", cleanLabel, score)
 }
 
 func featureSummary(article core.Article) string {

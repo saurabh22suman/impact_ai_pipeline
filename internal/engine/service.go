@@ -90,7 +90,7 @@ func (s *Service) Run(ctx context.Context, req core.RunRequest, ingested []core.
 			LabelWindowTo: market.LabelWindowEnd(article.PublishedAt),
 		}
 		events = append(events, aligned)
-		featureRows = append(featureRows, buildFeatureRows(aligned, impactCfg)...)
+		featureRows = append(featureRows, s.buildFeatureRows(ctx, aligned, impactCfg)...)
 	}
 
 	result := core.RunResult{
