@@ -1,6 +1,7 @@
 package enrich
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/soloengine/ai-impact-scrapper/internal/config"
@@ -24,14 +25,14 @@ func (m EntityMapper) Map(article Article) []EntityMatch {
 			continue
 		}
 		confidence := 0.0
-		if strings.Contains(text, strings.ToLower(entity.Name)) {
+		if containsTerm(text, entity.Name) {
 			confidence = 0.95
 		}
-		if strings.Contains(text, strings.ToLower(entity.Symbol)) && confidence < 0.90 {
+		if containsTerm(text, entity.Symbol) && confidence < 0.90 {
 			confidence = 0.9
 		}
 		for _, alias := range entity.Aliases {
-			if alias != "" && strings.Contains(text, strings.ToLower(alias)) && confidence < 0.85 {
+			if alias != "" && containsTerm(text, alias) && confidence < 0.85 {
 				confidence = 0.85
 			}
 		}
@@ -52,4 +53,14 @@ func (m EntityMapper) Map(article Article) []EntityMatch {
 	}
 
 	return matches
+}
+
+func containsTerm(text, term string) bool {
+	normalizedTerm := strings.ToLower(strings.TrimSpace(term))
+	if normalizedTerm == "" {
+		return false
+	}
+
+	pattern := `(^|[^a-z0-9])` + regexp.QuoteMeta(normalizedTerm) + `([^a-z0-9]|$)`
+	return regexp.MustCompile(pattern).MatchString(text)
 }

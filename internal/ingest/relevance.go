@@ -1,6 +1,7 @@
 package ingest
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/soloengine/ai-impact-scrapper/internal/config"
@@ -24,7 +25,7 @@ func (r RelevanceGate) Score(article core.Article, factors []config.Factor, enti
 	for _, factor := range factors {
 		for _, keyword := range factor.Keywords {
 			factorTotal++
-			if keyword != "" && strings.Contains(text, strings.ToLower(keyword)) {
+			if keyword != "" && containsTerm(text, keyword) {
 				factorHits++
 			}
 		}
@@ -32,12 +33,12 @@ func (r RelevanceGate) Score(article core.Article, factors []config.Factor, enti
 
 	entityHits := 0
 	for _, entity := range entities {
-		if strings.Contains(text, strings.ToLower(entity.Name)) {
+		if containsTerm(text, entity.Name) {
 			entityHits++
 			continue
 		}
 		for _, alias := range entity.Aliases {
-			if alias != "" && strings.Contains(text, strings.ToLower(alias)) {
+			if alias != "" && containsTerm(text, alias) {
 				entityHits++
 				break
 			}
@@ -54,6 +55,16 @@ func (r RelevanceGate) Score(article core.Article, factors []config.Factor, enti
 	}
 
 	return 0.65*factorScore + 0.35*entityScore
+}
+
+func containsTerm(text, term string) bool {
+	normalizedTerm := strings.ToLower(strings.TrimSpace(term))
+	if normalizedTerm == "" {
+		return false
+	}
+
+	pattern := `(^|[^a-z0-9])` + regexp.QuoteMeta(normalizedTerm) + `([^a-z0-9]|$)`
+	return regexp.MustCompile(pattern).MatchString(text)
 }
 
 func (r RelevanceGate) NeedsLLMRefinement(relevanceScore, noveltyThreshold, ambiguityThreshold float64) bool {

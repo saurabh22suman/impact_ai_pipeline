@@ -22,6 +22,35 @@ func TestDedupeByCanonicalHash(t *testing.T) {
 	}
 }
 
+func TestRelevanceGateDoesNotCountAISubstringFalsePositive(t *testing.T) {
+	gate := ingest.NewRelevanceGate()
+	article := core.Article{
+		Title:   "Executives said the main concern was guidance",
+		Summary: "No standalone token should match",
+		Body:    "Commentary stayed focused on services revenue.",
+	}
+	entities := []config.Entity{{Name: "AI", Aliases: []string{"AI"}}}
+
+	score := gate.Score(article, nil, entities)
+	if score != 0 {
+		t.Fatalf("expected zero relevance score without standalone AI token, got %.4f", score)
+	}
+}
+
+func TestRelevanceGateCountsStandaloneAIToken(t *testing.T) {
+	gate := ingest.NewRelevanceGate()
+	article := core.Article{
+		Title:   "AI demand improved across enterprise tools",
+		Summary: "Management discussed AI roadmaps",
+	}
+	entities := []config.Entity{{Name: "AI", Aliases: []string{"AI"}}}
+
+	score := gate.Score(article, nil, entities)
+	if score <= 0 {
+		t.Fatalf("expected positive relevance score with standalone AI token, got %.4f", score)
+	}
+}
+
 func TestRelevanceGateScoresExpectedRange(t *testing.T) {
 	gate := ingest.NewRelevanceGate()
 	article := core.Article{
