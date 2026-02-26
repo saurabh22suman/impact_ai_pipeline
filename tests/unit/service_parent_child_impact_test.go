@@ -2,6 +2,7 @@ package unit
 
 import (
 	"context"
+	"math"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -42,6 +43,7 @@ func TestServiceRunBuildsParentChildCrossProductRows(t *testing.T) {
 	}
 
 	pairs := map[string]bool{}
+	weightSum := 0.0
 	for _, row := range result.FeatureRows {
 		pairs[row.ParentEntity+"|"+row.ChildEntity] = true
 		if !strings.Contains(row.SentimentDisplay, "(") || !strings.Contains(row.SentimentDisplay, ")") {
@@ -50,9 +52,16 @@ func TestServiceRunBuildsParentChildCrossProductRows(t *testing.T) {
 		if row.Weight <= 0 {
 			t.Fatalf("expected positive weight, got %f", row.Weight)
 		}
+		if row.Weight >= 1.0 {
+			t.Fatalf("expected weight < 1.0 for multi-row impact event, got %f", row.Weight)
+		}
 		if row.ConfidenceScore <= 0 {
 			t.Fatalf("expected positive confidence score, got %f", row.ConfidenceScore)
 		}
+		weightSum += row.Weight
+	}
+	if math.Abs(weightSum-1.0) > 1e-9 {
+		t.Fatalf("expected row weights to sum to 1.0, got %f", weightSum)
 	}
 	if !pairs["INFY|OPENAI"] {
 		t.Fatalf("missing INFY|OPENAI pair")

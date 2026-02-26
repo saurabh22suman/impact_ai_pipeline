@@ -252,10 +252,35 @@ func (s *Service) buildImpactFeatureRows(ctx context.Context, event core.MarketA
 		return nil
 	}
 
-	parentWeights := normalizeParentWeights(parents)
-	rows := make([]core.FeatureRow, 0, len(pairSpecs))
-	for idx, pair := range pairSpecs {
+	type evaluatedPair struct {
+		pair      impactPairSpec
+		sentiment pairSentimentResult
+		rawWeight float64
+	}
+
+	evaluatedPairs := make([]evaluatedPair, 0, len(pairSpecs))
+	totalRawWeight := 0.0
+	for _, pair := range pairSpecs {
 		pairSentiment := s.classifyPairSentiment(ctx, event, pair)
+		rawWeight := pairRawWeight(pair, pairSentiment.Score)
+		totalRawWeight += rawWeight
+		evaluatedPairs = append(evaluatedPairs, evaluatedPair{
+			pair:      pair,
+			sentiment: pairSentiment,
+			rawWeight: rawWeight,
+		})
+	}
+	if totalRawWeight <= 0 {
+		totalRawWeight = float64(len(evaluatedPairs))
+		for i := range evaluatedPairs {
+			evaluatedPairs[i].rawWeight = 1.0
+		}
+	}
+
+	rows := make([]core.FeatureRow, 0, len(pairSpecs))
+	for idx, evaluated := range evaluatedPairs {
+		pair := evaluated.pair
+		pairSentiment := evaluated.sentiment
 		baseInput := allocateInt(event.Event.Metadata.InputTokens, len(pairSpecs), idx)
 		baseOutput := allocateInt(event.Event.Metadata.OutputTokens, len(pairSpecs), idx)
 		baseCost := 0.0
@@ -302,7 +327,7 @@ func (s *Service) buildImpactFeatureRows(ctx context.Context, event core.MarketA
 			ParentEntity:     pair.parent.Symbol,
 			ChildEntity:      childEntity,
 			SentimentDisplay: formatSentimentDisplay(pairSentiment.Label, pairSentiment.Score),
-			Weight:           parentWeights[strings.ToUpper(strings.TrimSpace(pair.parent.Symbol))],
+			Weight:           evaluated.rawWeight / totalRawWeight,
 			ConfidenceScore:  confidence,
 			Summary:          featureSummary(event.Event.Article),
 		})
@@ -370,29 +395,27 @@ func deterministicSentimentFallback(text string) (string, float64) {
 	return label, score
 }
 
-func normalizeParentWeights(parents []core.EntityMatch) map[string]float64 {
-	weights := map[string]float64{}
-	if len(parents) == 0 {
-		return weights
+func pairRawWeight(pair impactPairSpec, sentimentScore float64) float64 {
+	parentConfidence := pair.parent.Confidence
+	if parentConfidence < 0 {
+		parentConfidence = 0
 	}
-	total := 0.0
-	for _, parent := range parents {
-		if parent.Confidence > 0 {
-			total += parent.Confidence
+	childConfidence := 0.0
+	if pair.child != nil {
+		childConfidence = pair.child.Confidence
+		if childConfidence < 0 {
+			childConfidence = 0
 		}
 	}
-	if total <= 0 {
-		equal := 1.0 / float64(len(parents))
-		for _, parent := range parents {
-			weights[strings.ToUpper(strings.TrimSpace(parent.Symbol))] = equal
-		}
-		return weights
+	magnitude := math.Abs(sentimentScore)
+	if magnitude > 1 {
+		magnitude = 1
 	}
-	for _, parent := range parents {
-		symbol := strings.ToUpper(strings.TrimSpace(parent.Symbol))
-		weights[symbol] = parent.Confidence / total
+	raw := parentConfidence + 0.5*childConfidence + 0.1*magnitude
+	if raw <= 0 {
+		return 1.0
 	}
-	return weights
+	return raw
 }
 
 func pairConfidence(entityConfidence float64, sentimentScore float64) float64 {
