@@ -1,0 +1,21 @@
+run_id,pipeline_profile,provider,model,prompt_version,article_id,symbol,session_date,session_label,sentiment_score,relevance_score,factor_vector,input_tokens,output_tokens,estimated_cost_usd
+run-000001,high_recall,rules,rules,v1,coforge-2025-06-10,AI,2025-06-09,during_session,0.15,0.6741379310344828,"[""ai-capex"", ""ai-regulation"", ""ai-demand"", ""ai-cost-pressure"", ""ai-talent""]",0,0,0
+run-000001,high_recall,rules,rules,v1,coforge-2025-06-10,COFORGE,2025-06-09,during_session,0.15,0.6741379310344828,"[""ai-capex"", ""ai-regulation"", ""ai-demand"", ""ai-cost-pressure"", ""ai-talent""]",0,0,0
+run-000001,high_recall,rules,rules,v1,hcltech-2025-06-10,AI,2025-06-09,during_session,0.15,0.6741379310344828,"[""ai-capex"", ""ai-regulation"", ""ai-demand"", ""ai-cost-pressure"", ""ai-talent""]",0,0,0
+run-000001,high_recall,rules,rules,v1,hcltech-2025-06-10,HCLTECH,2025-06-09,during_session,0.15,0.6741379310344828,"[""ai-capex"", ""ai-regulation"", ""ai-demand"", ""ai-cost-pressure"", ""ai-talent""]",0,0,0
+run-000001,high_recall,rules,rules,v1,infy-2025-06-10,AI,2025-06-09,during_session,0.15,0.6741379310344828,"[""ai-capex"", ""ai-regulation"", ""ai-demand"", ""ai-cost-pressure"", ""ai-talent""]",0,0,0
+run-000001,high_recall,rules,rules,v1,infy-2025-06-10,INFY,2025-06-09,during_session,0.15,0.6741379310344828,"[""ai-capex"", ""ai-regulation"", ""ai-demand"", ""ai-cost-pressure"", ""ai-talent""]",0,0,0
+run-000001,high_recall,rules,rules,v1,ltim-2025-06-10,AI,2025-06-09,during_session,0.15,0.6741379310344828,"[""ai-capex"", ""ai-regulation"", ""ai-demand"", ""ai-cost-pressure"", ""ai-talent""]",0,0,0
+run-000001,high_recall,rules,rules,v1,ltim-2025-06-10,LTIM,2025-06-09,during_session,0.15,0.6741379310344828,"[""ai-capex"", ""ai-regulation"", ""ai-demand"", ""ai-cost-pressure"", ""ai-talent""]",0,0,0
+run-000001,high_recall,rules,rules,v1,mphasis-2025-06-10,AI,2025-06-09,during_session,0.15,0.6741379310344828,"[""ai-capex"", ""ai-regulation"", ""ai-demand"", ""ai-cost-pressure"", ""ai-talent""]",0,0,0
+run-000001,high_recall,rules,rules,v1,mphasis-2025-06-10,MPHASIS,2025-06-09,during_session,0.15,0.6741379310344828,"[""ai-capex"", ""ai-regulation"", ""ai-demand"", ""ai-cost-pressure"", ""ai-talent""]",0,0,0
+run-000001,high_recall,rules,rules,v1,ofss-2025-06-10,AI,2025-06-09,during_session,0.15,0.6741379310344828,"[""ai-capex"", ""ai-regulation"", ""ai-demand"", ""ai-cost-pressure"", ""ai-talent""]",0,0,0
+run-000001,high_recall,rules,rules,v1,ofss-2025-06-10,OFSS,2025-06-09,during_session,0.15,0.6741379310344828,"[""ai-capex"", ""ai-regulation"", ""ai-demand"", ""ai-cost-pressure"", ""ai-talent""]",0,0,0
+run-000001,high_recall,rules,rules,v1,persistent-2025-06-10,AI,2025-06-09,during_session,0.3,0.6741379310344828,"[""ai-capex"", ""ai-regulation"", ""ai-demand"", ""ai-cost-pressure"", ""ai-talent""]",0,0,0
+run-000001,high_recall,rules,rules,v1,persistent-2025-06-10,PERSISTENT,2025-06-09,during_session,0.3,0.6741379310344828,"[""ai-capex"", ""ai-regulation"", ""ai-demand"", ""ai-cost-pressure"", ""ai-talent""]",0,0,0
+run-000001,high_recall,rules,rules,v1,tcs-2025-06-10,AI,2025-06-09,during_session,0.15,0.6741379310344828,"[""ai-capex"", ""ai-regulation"", ""ai-demand"", ""ai-cost-pressure"", ""ai-talent""]",0,0,0
+run-000001,high_recall,rules,rules,v1,tcs-2025-06-10,TCS,2025-06-09,during_session,0.15,0.6741379310344828,"[""ai-capex"", ""ai-regulation"", ""ai-demand"", ""ai-cost-pressure"", ""ai-talent""]",0,0,0
+run-000001,high_recall,rules,rules,v1,techm-2025-06-10,AI,2025-06-09,during_session,0.15,0.6741379310344828,"[""ai-capex"", ""ai-regulation"", ""ai-demand"", ""ai-cost-pressure"", ""ai-talent""]",0,0,0
+run-000001,high_recall,rules,rules,v1,techm-2025-06-10,TECHM,2025-06-09,during_session,0.15,0.6741379310344828,"[""ai-capex"", ""ai-regulation"", ""ai-demand"", ""ai-cost-pressure"", ""ai-talent""]",0,0,0
+run-000001,high_recall,rules,rules,v1,wipro-2025-06-10,AI,2025-06-09,during_session,0.15,0.6741379310344828,"[""ai-capex"", ""ai-regulation"", ""ai-demand"", ""ai-cost-pressure"", ""ai-talent""]",0,0,0
+run-000001,high_recall,rules,rules,v1,wipro-2025-06-10,WIPRO,2025-06-09,during_session,0.15,0.6741379310344828,"[""ai-capex"", ""ai-regulation"", ""ai-demand"", ""ai-cost-pressure"", ""ai-talent""]",0,0,0

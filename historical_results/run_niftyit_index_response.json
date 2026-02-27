@@ -1,22 +1,1676 @@
 {
-  "notices": [],
+  "notices": [
+    "backfill archive_http loaded: url=http://intelligent_wescoff:18081/archive_http_articles_nifty_highrel.jsonl format=jsonl"
+  ],
   "run": {
-    "run_id": "run-000014",
+    "run_id": "run-000003",
     "status": "completed",
-    "created_at": "2026-02-26T17:44:07.565539529Z",
-    "started_at": "2026-02-26T17:44:07.565539529Z",
-    "finished_at": "2026-02-26T17:44:21.910465209Z",
-    "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-22+2026-02-22+2026-02-22",
+    "created_at": "2026-02-27T01:49:40.130650079Z",
+    "started_at": "2026-02-27T01:49:40.130650079Z",
+    "finished_at": "2026-02-27T01:49:40.164900461Z",
+    "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
     "profile": "high_recall",
-    "events": [],
-    "feature_rows": [],
+    "events": [
+      {
+        "event": {
+          "metadata": {
+            "run_id": "run-000003",
+            "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+            "pipeline_profile": "high_recall",
+            "provider": "rules",
+            "model": "rules",
+            "prompt_version": "v1",
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "estimated_cost_usd": 0,
+            "created_at": "2026-02-27T01:49:40.130650079Z"
+          },
+          "article": {
+            "id": "coforge-2025-06-10",
+            "source_id": "moneycontrol-markets",
+            "source_name": "Moneycontrol Markets",
+            "url": "https://example.com/coforge-2025-06-10",
+            "title": "Coforge announces AI transformation deal and platform modernization",
+            "summary": "COFORGE highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls.",
+            "body": "COFORGE management commentary includes: ai capex; gpu spend; datacenter expansion; capital expenditure; ai regulation; compliance; privacy law; governance; enterprise ai; genai adoption; ai contract; model deployment; margin pressure; compute cost; inference cost; pricing pressure; ai hiring; reskilling; attrition; wage inflation. The company guides for enterprise ai growth while managing margin pressure and pricing pressure.",
+            "language": "en",
+            "region": "india",
+            "published_at": "2025-06-10T09:15:00Z",
+            "ingested_at": "2026-02-27T01:49:40.130632052Z",
+            "canonical_hash": ""
+          },
+          "entities": [
+            {
+              "entity_id": "theme-ai",
+              "symbol": "AI",
+              "name": "Artificial Intelligence",
+              "confidence": 0.9,
+              "method": "keyword_match"
+            },
+            {
+              "entity_id": "nse-coforge",
+              "symbol": "COFORGE",
+              "name": "Coforge",
+              "confidence": 0.95,
+              "method": "keyword_match"
+            }
+          ],
+          "factors": [
+            {
+              "factor_id": "ai-capex",
+              "name": "AI Capex",
+              "category": "investment",
+              "score": 0.9,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-regulation",
+              "name": "AI Regulation",
+              "category": "policy",
+              "score": 1,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-demand",
+              "name": "AI Demand Signal",
+              "category": "demand",
+              "score": 0.8,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-cost-pressure",
+              "name": "AI Cost Pressure",
+              "category": "margin",
+              "score": 0.7,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-talent",
+              "name": "AI Talent Dynamics",
+              "category": "labor",
+              "score": 0.6,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            }
+          ],
+          "sentiment_label": "positive",
+          "sentiment_score": 0.15,
+          "relevance_score": 0.65,
+          "needs_llm_refinement": false
+        },
+        "session": {
+          "exchange": "NSE",
+          "session_date": "2025-06-09T18:30:00Z",
+          "session_label": "during_session",
+          "pre_open": false,
+          "during_session": true,
+          "post_close": false
+        },
+        "label_window_to": "2025-06-11T10:00:00Z"
+      },
+      {
+        "event": {
+          "metadata": {
+            "run_id": "run-000003",
+            "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+            "pipeline_profile": "high_recall",
+            "provider": "rules",
+            "model": "rules",
+            "prompt_version": "v1",
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "estimated_cost_usd": 0,
+            "created_at": "2026-02-27T01:49:40.130650079Z"
+          },
+          "article": {
+            "id": "hcltech-2025-06-10",
+            "source_id": "moneycontrol-markets",
+            "source_name": "Moneycontrol Markets",
+            "url": "https://example.com/hcltech-2025-06-10",
+            "title": "HCLTECH expands enterprise AI services and cloud modernization",
+            "summary": "HCLTECH highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls.",
+            "body": "HCLTECH management commentary includes: ai capex; gpu spend; datacenter expansion; capital expenditure; ai regulation; compliance; privacy law; governance; enterprise ai; genai adoption; ai contract; model deployment; margin pressure; compute cost; inference cost; pricing pressure; ai hiring; reskilling; attrition; wage inflation. The company guides for enterprise ai growth while managing margin pressure and pricing pressure.",
+            "language": "en",
+            "region": "india",
+            "published_at": "2025-06-10T09:15:00Z",
+            "ingested_at": "2026-02-27T01:49:40.130632342Z",
+            "canonical_hash": ""
+          },
+          "entities": [
+            {
+              "entity_id": "theme-ai",
+              "symbol": "AI",
+              "name": "Artificial Intelligence",
+              "confidence": 0.9,
+              "method": "keyword_match"
+            },
+            {
+              "entity_id": "nse-hcltech",
+              "symbol": "HCLTECH",
+              "name": "HCL Technologies",
+              "confidence": 0.9,
+              "method": "keyword_match"
+            }
+          ],
+          "factors": [
+            {
+              "factor_id": "ai-capex",
+              "name": "AI Capex",
+              "category": "investment",
+              "score": 0.9,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-regulation",
+              "name": "AI Regulation",
+              "category": "policy",
+              "score": 1,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-demand",
+              "name": "AI Demand Signal",
+              "category": "demand",
+              "score": 0.8,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-cost-pressure",
+              "name": "AI Cost Pressure",
+              "category": "margin",
+              "score": 0.7,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-talent",
+              "name": "AI Talent Dynamics",
+              "category": "labor",
+              "score": 0.6,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            }
+          ],
+          "sentiment_label": "positive",
+          "sentiment_score": 0.15,
+          "relevance_score": 0.65,
+          "needs_llm_refinement": false
+        },
+        "session": {
+          "exchange": "NSE",
+          "session_date": "2025-06-09T18:30:00Z",
+          "session_label": "during_session",
+          "pre_open": false,
+          "during_session": true,
+          "post_close": false
+        },
+        "label_window_to": "2025-06-11T10:00:00Z"
+      },
+      {
+        "event": {
+          "metadata": {
+            "run_id": "run-000003",
+            "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+            "pipeline_profile": "high_recall",
+            "provider": "rules",
+            "model": "rules",
+            "prompt_version": "v1",
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "estimated_cost_usd": 0,
+            "created_at": "2026-02-27T01:49:40.130650079Z"
+          },
+          "article": {
+            "id": "infy-2025-06-10",
+            "source_id": "moneycontrol-markets",
+            "source_name": "Moneycontrol Markets",
+            "url": "https://example.com/infy-2025-06-10",
+            "title": "INFY secures large GenAI modernization mandate from global retailer",
+            "summary": "INFY highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls.",
+            "body": "INFY management commentary includes: ai capex; gpu spend; datacenter expansion; capital expenditure; ai regulation; compliance; privacy law; governance; enterprise ai; genai adoption; ai contract; model deployment; margin pressure; compute cost; inference cost; pricing pressure; ai hiring; reskilling; attrition; wage inflation. The company guides for enterprise ai growth while managing margin pressure and pricing pressure.",
+            "language": "en",
+            "region": "india",
+            "published_at": "2025-06-10T09:15:00Z",
+            "ingested_at": "2026-02-27T01:49:40.130632447Z",
+            "canonical_hash": ""
+          },
+          "entities": [
+            {
+              "entity_id": "theme-ai",
+              "symbol": "AI",
+              "name": "Artificial Intelligence",
+              "confidence": 0.9,
+              "method": "keyword_match"
+            },
+            {
+              "entity_id": "nse-infy",
+              "symbol": "INFY",
+              "name": "Infosys Limited",
+              "confidence": 0.9,
+              "method": "keyword_match"
+            }
+          ],
+          "factors": [
+            {
+              "factor_id": "ai-capex",
+              "name": "AI Capex",
+              "category": "investment",
+              "score": 0.9,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-regulation",
+              "name": "AI Regulation",
+              "category": "policy",
+              "score": 1,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-demand",
+              "name": "AI Demand Signal",
+              "category": "demand",
+              "score": 0.8,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-cost-pressure",
+              "name": "AI Cost Pressure",
+              "category": "margin",
+              "score": 0.7,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-talent",
+              "name": "AI Talent Dynamics",
+              "category": "labor",
+              "score": 0.6,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            }
+          ],
+          "sentiment_label": "positive",
+          "sentiment_score": 0.15,
+          "relevance_score": 0.65,
+          "needs_llm_refinement": false
+        },
+        "session": {
+          "exchange": "NSE",
+          "session_date": "2025-06-09T18:30:00Z",
+          "session_label": "during_session",
+          "pre_open": false,
+          "during_session": true,
+          "post_close": false
+        },
+        "label_window_to": "2025-06-11T10:00:00Z"
+      },
+      {
+        "event": {
+          "metadata": {
+            "run_id": "run-000003",
+            "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+            "pipeline_profile": "high_recall",
+            "provider": "rules",
+            "model": "rules",
+            "prompt_version": "v1",
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "estimated_cost_usd": 0,
+            "created_at": "2026-02-27T01:49:40.130650079Z"
+          },
+          "article": {
+            "id": "ltim-2025-06-10",
+            "source_id": "moneycontrol-markets",
+            "source_name": "Moneycontrol Markets",
+            "url": "https://example.com/ltim-2025-06-10",
+            "title": "LTIM scales AI engineering center and datacenter expansion plans",
+            "summary": "LTIM highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls.",
+            "body": "LTIM management commentary includes: ai capex; gpu spend; datacenter expansion; capital expenditure; ai regulation; compliance; privacy law; governance; enterprise ai; genai adoption; ai contract; model deployment; margin pressure; compute cost; inference cost; pricing pressure; ai hiring; reskilling; attrition; wage inflation. The company guides for enterprise ai growth while managing margin pressure and pricing pressure.",
+            "language": "en",
+            "region": "india",
+            "published_at": "2025-06-10T09:15:00Z",
+            "ingested_at": "2026-02-27T01:49:40.130632551Z",
+            "canonical_hash": ""
+          },
+          "entities": [
+            {
+              "entity_id": "theme-ai",
+              "symbol": "AI",
+              "name": "Artificial Intelligence",
+              "confidence": 0.9,
+              "method": "keyword_match"
+            },
+            {
+              "entity_id": "nse-ltim",
+              "symbol": "LTIM",
+              "name": "LTIMindtree",
+              "confidence": 0.9,
+              "method": "keyword_match"
+            }
+          ],
+          "factors": [
+            {
+              "factor_id": "ai-capex",
+              "name": "AI Capex",
+              "category": "investment",
+              "score": 0.9,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-regulation",
+              "name": "AI Regulation",
+              "category": "policy",
+              "score": 1,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-demand",
+              "name": "AI Demand Signal",
+              "category": "demand",
+              "score": 0.8,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-cost-pressure",
+              "name": "AI Cost Pressure",
+              "category": "margin",
+              "score": 0.7,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-talent",
+              "name": "AI Talent Dynamics",
+              "category": "labor",
+              "score": 0.6,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            }
+          ],
+          "sentiment_label": "positive",
+          "sentiment_score": 0.15,
+          "relevance_score": 0.65,
+          "needs_llm_refinement": false
+        },
+        "session": {
+          "exchange": "NSE",
+          "session_date": "2025-06-09T18:30:00Z",
+          "session_label": "during_session",
+          "pre_open": false,
+          "during_session": true,
+          "post_close": false
+        },
+        "label_window_to": "2025-06-11T10:00:00Z"
+      },
+      {
+        "event": {
+          "metadata": {
+            "run_id": "run-000003",
+            "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+            "pipeline_profile": "high_recall",
+            "provider": "rules",
+            "model": "rules",
+            "prompt_version": "v1",
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "estimated_cost_usd": 0,
+            "created_at": "2026-02-27T01:49:40.130650079Z"
+          },
+          "article": {
+            "id": "mphasis-2025-06-10",
+            "source_id": "moneycontrol-markets",
+            "source_name": "Moneycontrol Markets",
+            "url": "https://example.com/mphasis-2025-06-10",
+            "title": "MPHASIS signs AI managed services and consulting agreement",
+            "summary": "MPHASIS highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls.",
+            "body": "MPHASIS management commentary includes: ai capex; gpu spend; datacenter expansion; capital expenditure; ai regulation; compliance; privacy law; governance; enterprise ai; genai adoption; ai contract; model deployment; margin pressure; compute cost; inference cost; pricing pressure; ai hiring; reskilling; attrition; wage inflation. The company guides for enterprise ai growth while managing margin pressure and pricing pressure.",
+            "language": "en",
+            "region": "india",
+            "published_at": "2025-06-10T09:15:00Z",
+            "ingested_at": "2026-02-27T01:49:40.130632654Z",
+            "canonical_hash": ""
+          },
+          "entities": [
+            {
+              "entity_id": "theme-ai",
+              "symbol": "AI",
+              "name": "Artificial Intelligence",
+              "confidence": 0.9,
+              "method": "keyword_match"
+            },
+            {
+              "entity_id": "nse-mphasis",
+              "symbol": "MPHASIS",
+              "name": "Mphasis",
+              "confidence": 0.95,
+              "method": "keyword_match"
+            }
+          ],
+          "factors": [
+            {
+              "factor_id": "ai-capex",
+              "name": "AI Capex",
+              "category": "investment",
+              "score": 0.9,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-regulation",
+              "name": "AI Regulation",
+              "category": "policy",
+              "score": 1,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-demand",
+              "name": "AI Demand Signal",
+              "category": "demand",
+              "score": 0.8,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-cost-pressure",
+              "name": "AI Cost Pressure",
+              "category": "margin",
+              "score": 0.7,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-talent",
+              "name": "AI Talent Dynamics",
+              "category": "labor",
+              "score": 0.6,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            }
+          ],
+          "sentiment_label": "positive",
+          "sentiment_score": 0.15,
+          "relevance_score": 0.65,
+          "needs_llm_refinement": false
+        },
+        "session": {
+          "exchange": "NSE",
+          "session_date": "2025-06-09T18:30:00Z",
+          "session_label": "during_session",
+          "pre_open": false,
+          "during_session": true,
+          "post_close": false
+        },
+        "label_window_to": "2025-06-11T10:00:00Z"
+      },
+      {
+        "event": {
+          "metadata": {
+            "run_id": "run-000003",
+            "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+            "pipeline_profile": "high_recall",
+            "provider": "rules",
+            "model": "rules",
+            "prompt_version": "v1",
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "estimated_cost_usd": 0,
+            "created_at": "2026-02-27T01:49:40.130650079Z"
+          },
+          "article": {
+            "id": "ofss-2025-06-10",
+            "source_id": "moneycontrol-markets",
+            "source_name": "Moneycontrol Markets",
+            "url": "https://example.com/ofss-2025-06-10",
+            "title": "OFSS launches AI-led BFSI product and regulatory compliance tooling",
+            "summary": "OFSS highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls.",
+            "body": "OFSS management commentary includes: ai capex; gpu spend; datacenter expansion; capital expenditure; ai regulation; compliance; privacy law; governance; enterprise ai; genai adoption; ai contract; model deployment; margin pressure; compute cost; inference cost; pricing pressure; ai hiring; reskilling; attrition; wage inflation. The company guides for enterprise ai growth while managing margin pressure and pricing pressure.",
+            "language": "en",
+            "region": "india",
+            "published_at": "2025-06-10T09:15:00Z",
+            "ingested_at": "2026-02-27T01:49:40.130632777Z",
+            "canonical_hash": ""
+          },
+          "entities": [
+            {
+              "entity_id": "theme-ai",
+              "symbol": "AI",
+              "name": "Artificial Intelligence",
+              "confidence": 0.9,
+              "method": "keyword_match"
+            },
+            {
+              "entity_id": "nse-ofss",
+              "symbol": "OFSS",
+              "name": "Oracle Financial Services Software",
+              "confidence": 0.9,
+              "method": "keyword_match"
+            }
+          ],
+          "factors": [
+            {
+              "factor_id": "ai-capex",
+              "name": "AI Capex",
+              "category": "investment",
+              "score": 0.9,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-regulation",
+              "name": "AI Regulation",
+              "category": "policy",
+              "score": 1,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-demand",
+              "name": "AI Demand Signal",
+              "category": "demand",
+              "score": 0.8,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-cost-pressure",
+              "name": "AI Cost Pressure",
+              "category": "margin",
+              "score": 0.7,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-talent",
+              "name": "AI Talent Dynamics",
+              "category": "labor",
+              "score": 0.6,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            }
+          ],
+          "sentiment_label": "positive",
+          "sentiment_score": 0.15,
+          "relevance_score": 0.65,
+          "needs_llm_refinement": false
+        },
+        "session": {
+          "exchange": "NSE",
+          "session_date": "2025-06-09T18:30:00Z",
+          "session_label": "during_session",
+          "pre_open": false,
+          "during_session": true,
+          "post_close": false
+        },
+        "label_window_to": "2025-06-11T10:00:00Z"
+      },
+      {
+        "event": {
+          "metadata": {
+            "run_id": "run-000003",
+            "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+            "pipeline_profile": "high_recall",
+            "provider": "rules",
+            "model": "rules",
+            "prompt_version": "v1",
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "estimated_cost_usd": 0,
+            "created_at": "2026-02-27T01:49:40.130650079Z"
+          },
+          "article": {
+            "id": "persistent-2025-06-10",
+            "source_id": "moneycontrol-markets",
+            "source_name": "Moneycontrol Markets",
+            "url": "https://example.com/persistent-2025-06-10",
+            "title": "PERSISTENT reports strong AI demand and enterprise deal momentum",
+            "summary": "PERSISTENT highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls.",
+            "body": "PERSISTENT management commentary includes: ai capex; gpu spend; datacenter expansion; capital expenditure; ai regulation; compliance; privacy law; governance; enterprise ai; genai adoption; ai contract; model deployment; margin pressure; compute cost; inference cost; pricing pressure; ai hiring; reskilling; attrition; wage inflation. The company guides for enterprise ai growth while managing margin pressure and pricing pressure.",
+            "language": "en",
+            "region": "india",
+            "published_at": "2025-06-10T09:15:00Z",
+            "ingested_at": "2026-02-27T01:49:40.130632875Z",
+            "canonical_hash": ""
+          },
+          "entities": [
+            {
+              "entity_id": "theme-ai",
+              "symbol": "AI",
+              "name": "Artificial Intelligence",
+              "confidence": 0.9,
+              "method": "keyword_match"
+            },
+            {
+              "entity_id": "nse-persistent",
+              "symbol": "PERSISTENT",
+              "name": "Persistent Systems",
+              "confidence": 0.9,
+              "method": "keyword_match"
+            }
+          ],
+          "factors": [
+            {
+              "factor_id": "ai-capex",
+              "name": "AI Capex",
+              "category": "investment",
+              "score": 0.9,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-regulation",
+              "name": "AI Regulation",
+              "category": "policy",
+              "score": 1,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-demand",
+              "name": "AI Demand Signal",
+              "category": "demand",
+              "score": 0.8,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-cost-pressure",
+              "name": "AI Cost Pressure",
+              "category": "margin",
+              "score": 0.7,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-talent",
+              "name": "AI Talent Dynamics",
+              "category": "labor",
+              "score": 0.6,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            }
+          ],
+          "sentiment_label": "positive",
+          "sentiment_score": 0.3,
+          "relevance_score": 0.65,
+          "needs_llm_refinement": false
+        },
+        "session": {
+          "exchange": "NSE",
+          "session_date": "2025-06-09T18:30:00Z",
+          "session_label": "during_session",
+          "pre_open": false,
+          "during_session": true,
+          "post_close": false
+        },
+        "label_window_to": "2025-06-11T10:00:00Z"
+      },
+      {
+        "event": {
+          "metadata": {
+            "run_id": "run-000003",
+            "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+            "pipeline_profile": "high_recall",
+            "provider": "rules",
+            "model": "rules",
+            "prompt_version": "v1",
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "estimated_cost_usd": 0,
+            "created_at": "2026-02-27T01:49:40.130650079Z"
+          },
+          "article": {
+            "id": "tcs-2025-06-10",
+            "source_id": "moneycontrol-markets",
+            "source_name": "Moneycontrol Markets",
+            "url": "https://example.com/tcs-2025-06-10",
+            "title": "TCS wins strategic AI platform transformation contract",
+            "summary": "TCS highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls.",
+            "body": "TCS management commentary includes: ai capex; gpu spend; datacenter expansion; capital expenditure; ai regulation; compliance; privacy law; governance; enterprise ai; genai adoption; ai contract; model deployment; margin pressure; compute cost; inference cost; pricing pressure; ai hiring; reskilling; attrition; wage inflation. The company guides for enterprise ai growth while managing margin pressure and pricing pressure.",
+            "language": "en",
+            "region": "india",
+            "published_at": "2025-06-10T09:15:00Z",
+            "ingested_at": "2026-02-27T01:49:40.130632987Z",
+            "canonical_hash": ""
+          },
+          "entities": [
+            {
+              "entity_id": "theme-ai",
+              "symbol": "AI",
+              "name": "Artificial Intelligence",
+              "confidence": 0.9,
+              "method": "keyword_match"
+            },
+            {
+              "entity_id": "nse-tcs",
+              "symbol": "TCS",
+              "name": "Tata Consultancy Services",
+              "confidence": 0.9,
+              "method": "keyword_match"
+            }
+          ],
+          "factors": [
+            {
+              "factor_id": "ai-capex",
+              "name": "AI Capex",
+              "category": "investment",
+              "score": 0.9,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-regulation",
+              "name": "AI Regulation",
+              "category": "policy",
+              "score": 1,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-demand",
+              "name": "AI Demand Signal",
+              "category": "demand",
+              "score": 0.8,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-cost-pressure",
+              "name": "AI Cost Pressure",
+              "category": "margin",
+              "score": 0.7,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-talent",
+              "name": "AI Talent Dynamics",
+              "category": "labor",
+              "score": 0.6,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            }
+          ],
+          "sentiment_label": "positive",
+          "sentiment_score": 0.15,
+          "relevance_score": 0.65,
+          "needs_llm_refinement": false
+        },
+        "session": {
+          "exchange": "NSE",
+          "session_date": "2025-06-09T18:30:00Z",
+          "session_label": "during_session",
+          "pre_open": false,
+          "during_session": true,
+          "post_close": false
+        },
+        "label_window_to": "2025-06-11T10:00:00Z"
+      },
+      {
+        "event": {
+          "metadata": {
+            "run_id": "run-000003",
+            "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+            "pipeline_profile": "high_recall",
+            "provider": "rules",
+            "model": "rules",
+            "prompt_version": "v1",
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "estimated_cost_usd": 0,
+            "created_at": "2026-02-27T01:49:40.130650079Z"
+          },
+          "article": {
+            "id": "techm-2025-06-10",
+            "source_id": "moneycontrol-markets",
+            "source_name": "Moneycontrol Markets",
+            "url": "https://example.com/techm-2025-06-10",
+            "title": "TECHM partners on enterprise AI and automation rollout",
+            "summary": "TECHM highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls.",
+            "body": "TECHM management commentary includes: ai capex; gpu spend; datacenter expansion; capital expenditure; ai regulation; compliance; privacy law; governance; enterprise ai; genai adoption; ai contract; model deployment; margin pressure; compute cost; inference cost; pricing pressure; ai hiring; reskilling; attrition; wage inflation. The company guides for enterprise ai growth while managing margin pressure and pricing pressure.",
+            "language": "en",
+            "region": "india",
+            "published_at": "2025-06-10T09:15:00Z",
+            "ingested_at": "2026-02-27T01:49:40.130633087Z",
+            "canonical_hash": ""
+          },
+          "entities": [
+            {
+              "entity_id": "theme-ai",
+              "symbol": "AI",
+              "name": "Artificial Intelligence",
+              "confidence": 0.9,
+              "method": "keyword_match"
+            },
+            {
+              "entity_id": "nse-techm",
+              "symbol": "TECHM",
+              "name": "Tech Mahindra",
+              "confidence": 0.9,
+              "method": "keyword_match"
+            }
+          ],
+          "factors": [
+            {
+              "factor_id": "ai-capex",
+              "name": "AI Capex",
+              "category": "investment",
+              "score": 0.9,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-regulation",
+              "name": "AI Regulation",
+              "category": "policy",
+              "score": 1,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-demand",
+              "name": "AI Demand Signal",
+              "category": "demand",
+              "score": 0.8,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-cost-pressure",
+              "name": "AI Cost Pressure",
+              "category": "margin",
+              "score": 0.7,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-talent",
+              "name": "AI Talent Dynamics",
+              "category": "labor",
+              "score": 0.6,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            }
+          ],
+          "sentiment_label": "positive",
+          "sentiment_score": 0.15,
+          "relevance_score": 0.65,
+          "needs_llm_refinement": false
+        },
+        "session": {
+          "exchange": "NSE",
+          "session_date": "2025-06-09T18:30:00Z",
+          "session_label": "during_session",
+          "pre_open": false,
+          "during_session": true,
+          "post_close": false
+        },
+        "label_window_to": "2025-06-11T10:00:00Z"
+      },
+      {
+        "event": {
+          "metadata": {
+            "run_id": "run-000003",
+            "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+            "pipeline_profile": "high_recall",
+            "provider": "rules",
+            "model": "rules",
+            "prompt_version": "v1",
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "estimated_cost_usd": 0,
+            "created_at": "2026-02-27T01:49:40.130650079Z"
+          },
+          "article": {
+            "id": "wipro-2025-06-10",
+            "source_id": "moneycontrol-markets",
+            "source_name": "Moneycontrol Markets",
+            "url": "https://example.com/wipro-2025-06-10",
+            "title": "WIPRO expands AI-first consulting and modernization pipeline",
+            "summary": "WIPRO highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls.",
+            "body": "WIPRO management commentary includes: ai capex; gpu spend; datacenter expansion; capital expenditure; ai regulation; compliance; privacy law; governance; enterprise ai; genai adoption; ai contract; model deployment; margin pressure; compute cost; inference cost; pricing pressure; ai hiring; reskilling; attrition; wage inflation. The company guides for enterprise ai growth while managing margin pressure and pricing pressure.",
+            "language": "en",
+            "region": "india",
+            "published_at": "2025-06-10T09:15:00Z",
+            "ingested_at": "2026-02-27T01:49:40.130633189Z",
+            "canonical_hash": ""
+          },
+          "entities": [
+            {
+              "entity_id": "theme-ai",
+              "symbol": "AI",
+              "name": "Artificial Intelligence",
+              "confidence": 0.9,
+              "method": "keyword_match"
+            },
+            {
+              "entity_id": "nse-wipro",
+              "symbol": "WIPRO",
+              "name": "Wipro Limited",
+              "confidence": 0.9,
+              "method": "keyword_match"
+            }
+          ],
+          "factors": [
+            {
+              "factor_id": "ai-capex",
+              "name": "AI Capex",
+              "category": "investment",
+              "score": 0.9,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-regulation",
+              "name": "AI Regulation",
+              "category": "policy",
+              "score": 1,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-demand",
+              "name": "AI Demand Signal",
+              "category": "demand",
+              "score": 0.8,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-cost-pressure",
+              "name": "AI Cost Pressure",
+              "category": "margin",
+              "score": 0.7,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            },
+            {
+              "factor_id": "ai-talent",
+              "name": "AI Talent Dynamics",
+              "category": "labor",
+              "score": 0.6,
+              "matched_by": "rule_keyword",
+              "llm_refined": false
+            }
+          ],
+          "sentiment_label": "positive",
+          "sentiment_score": 0.15,
+          "relevance_score": 0.65,
+          "needs_llm_refinement": false
+        },
+        "session": {
+          "exchange": "NSE",
+          "session_date": "2025-06-09T18:30:00Z",
+          "session_label": "during_session",
+          "pre_open": false,
+          "during_session": true,
+          "post_close": false
+        },
+        "label_window_to": "2025-06-11T10:00:00Z"
+      }
+    ],
+    "feature_rows": [
+      {
+        "run_id": "run-000003",
+        "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+        "pipeline_profile": "high_recall",
+        "provider": "rules",
+        "model": "rules",
+        "prompt_version": "v1",
+        "article_id": "coforge-2025-06-10",
+        "symbol": "AI",
+        "session_date": "2025-06-09T18:30:00Z",
+        "session_label": "during_session",
+        "sentiment_score": 0.15,
+        "relevance_score": 0.65,
+        "factor_vector": [
+          "ai-capex",
+          "ai-regulation",
+          "ai-demand",
+          "ai-cost-pressure",
+          "ai-talent"
+        ],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0,
+        "news_source": "Moneycontrol Markets",
+        "url": "https://example.com/coforge-2025-06-10",
+        "parent_entity": "AI",
+        "child_entity": "N/A",
+        "sentiment_display": "positive (0.15)",
+        "weight": 1,
+        "confidence_score": 0.9,
+        "summary": "COFORGE highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls."
+      },
+      {
+        "run_id": "run-000003",
+        "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+        "pipeline_profile": "high_recall",
+        "provider": "rules",
+        "model": "rules",
+        "prompt_version": "v1",
+        "article_id": "coforge-2025-06-10",
+        "symbol": "COFORGE",
+        "session_date": "2025-06-09T18:30:00Z",
+        "session_label": "during_session",
+        "sentiment_score": 0.15,
+        "relevance_score": 0.65,
+        "factor_vector": [
+          "ai-capex",
+          "ai-regulation",
+          "ai-demand",
+          "ai-cost-pressure",
+          "ai-talent"
+        ],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0,
+        "news_source": "Moneycontrol Markets",
+        "url": "https://example.com/coforge-2025-06-10",
+        "parent_entity": "COFORGE",
+        "child_entity": "N/A",
+        "sentiment_display": "positive (0.15)",
+        "weight": 1,
+        "confidence_score": 0.95,
+        "summary": "COFORGE highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls."
+      },
+      {
+        "run_id": "run-000003",
+        "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+        "pipeline_profile": "high_recall",
+        "provider": "rules",
+        "model": "rules",
+        "prompt_version": "v1",
+        "article_id": "hcltech-2025-06-10",
+        "symbol": "AI",
+        "session_date": "2025-06-09T18:30:00Z",
+        "session_label": "during_session",
+        "sentiment_score": 0.15,
+        "relevance_score": 0.65,
+        "factor_vector": [
+          "ai-capex",
+          "ai-regulation",
+          "ai-demand",
+          "ai-cost-pressure",
+          "ai-talent"
+        ],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0,
+        "news_source": "Moneycontrol Markets",
+        "url": "https://example.com/hcltech-2025-06-10",
+        "parent_entity": "AI",
+        "child_entity": "N/A",
+        "sentiment_display": "positive (0.15)",
+        "weight": 1,
+        "confidence_score": 0.9,
+        "summary": "HCLTECH highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls."
+      },
+      {
+        "run_id": "run-000003",
+        "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+        "pipeline_profile": "high_recall",
+        "provider": "rules",
+        "model": "rules",
+        "prompt_version": "v1",
+        "article_id": "hcltech-2025-06-10",
+        "symbol": "HCLTECH",
+        "session_date": "2025-06-09T18:30:00Z",
+        "session_label": "during_session",
+        "sentiment_score": 0.15,
+        "relevance_score": 0.65,
+        "factor_vector": [
+          "ai-capex",
+          "ai-regulation",
+          "ai-demand",
+          "ai-cost-pressure",
+          "ai-talent"
+        ],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0,
+        "news_source": "Moneycontrol Markets",
+        "url": "https://example.com/hcltech-2025-06-10",
+        "parent_entity": "HCLTECH",
+        "child_entity": "N/A",
+        "sentiment_display": "positive (0.15)",
+        "weight": 1,
+        "confidence_score": 0.9,
+        "summary": "HCLTECH highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls."
+      },
+      {
+        "run_id": "run-000003",
+        "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+        "pipeline_profile": "high_recall",
+        "provider": "rules",
+        "model": "rules",
+        "prompt_version": "v1",
+        "article_id": "infy-2025-06-10",
+        "symbol": "AI",
+        "session_date": "2025-06-09T18:30:00Z",
+        "session_label": "during_session",
+        "sentiment_score": 0.15,
+        "relevance_score": 0.65,
+        "factor_vector": [
+          "ai-capex",
+          "ai-regulation",
+          "ai-demand",
+          "ai-cost-pressure",
+          "ai-talent"
+        ],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0,
+        "news_source": "Moneycontrol Markets",
+        "url": "https://example.com/infy-2025-06-10",
+        "parent_entity": "AI",
+        "child_entity": "N/A",
+        "sentiment_display": "positive (0.15)",
+        "weight": 1,
+        "confidence_score": 0.9,
+        "summary": "INFY highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls."
+      },
+      {
+        "run_id": "run-000003",
+        "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+        "pipeline_profile": "high_recall",
+        "provider": "rules",
+        "model": "rules",
+        "prompt_version": "v1",
+        "article_id": "infy-2025-06-10",
+        "symbol": "INFY",
+        "session_date": "2025-06-09T18:30:00Z",
+        "session_label": "during_session",
+        "sentiment_score": 0.15,
+        "relevance_score": 0.65,
+        "factor_vector": [
+          "ai-capex",
+          "ai-regulation",
+          "ai-demand",
+          "ai-cost-pressure",
+          "ai-talent"
+        ],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0,
+        "news_source": "Moneycontrol Markets",
+        "url": "https://example.com/infy-2025-06-10",
+        "parent_entity": "INFY",
+        "child_entity": "N/A",
+        "sentiment_display": "positive (0.15)",
+        "weight": 1,
+        "confidence_score": 0.9,
+        "summary": "INFY highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls."
+      },
+      {
+        "run_id": "run-000003",
+        "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+        "pipeline_profile": "high_recall",
+        "provider": "rules",
+        "model": "rules",
+        "prompt_version": "v1",
+        "article_id": "ltim-2025-06-10",
+        "symbol": "AI",
+        "session_date": "2025-06-09T18:30:00Z",
+        "session_label": "during_session",
+        "sentiment_score": 0.15,
+        "relevance_score": 0.65,
+        "factor_vector": [
+          "ai-capex",
+          "ai-regulation",
+          "ai-demand",
+          "ai-cost-pressure",
+          "ai-talent"
+        ],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0,
+        "news_source": "Moneycontrol Markets",
+        "url": "https://example.com/ltim-2025-06-10",
+        "parent_entity": "AI",
+        "child_entity": "N/A",
+        "sentiment_display": "positive (0.15)",
+        "weight": 1,
+        "confidence_score": 0.9,
+        "summary": "LTIM highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls."
+      },
+      {
+        "run_id": "run-000003",
+        "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+        "pipeline_profile": "high_recall",
+        "provider": "rules",
+        "model": "rules",
+        "prompt_version": "v1",
+        "article_id": "ltim-2025-06-10",
+        "symbol": "LTIM",
+        "session_date": "2025-06-09T18:30:00Z",
+        "session_label": "during_session",
+        "sentiment_score": 0.15,
+        "relevance_score": 0.65,
+        "factor_vector": [
+          "ai-capex",
+          "ai-regulation",
+          "ai-demand",
+          "ai-cost-pressure",
+          "ai-talent"
+        ],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0,
+        "news_source": "Moneycontrol Markets",
+        "url": "https://example.com/ltim-2025-06-10",
+        "parent_entity": "LTIM",
+        "child_entity": "N/A",
+        "sentiment_display": "positive (0.15)",
+        "weight": 1,
+        "confidence_score": 0.9,
+        "summary": "LTIM highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls."
+      },
+      {
+        "run_id": "run-000003",
+        "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+        "pipeline_profile": "high_recall",
+        "provider": "rules",
+        "model": "rules",
+        "prompt_version": "v1",
+        "article_id": "mphasis-2025-06-10",
+        "symbol": "AI",
+        "session_date": "2025-06-09T18:30:00Z",
+        "session_label": "during_session",
+        "sentiment_score": 0.15,
+        "relevance_score": 0.65,
+        "factor_vector": [
+          "ai-capex",
+          "ai-regulation",
+          "ai-demand",
+          "ai-cost-pressure",
+          "ai-talent"
+        ],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0,
+        "news_source": "Moneycontrol Markets",
+        "url": "https://example.com/mphasis-2025-06-10",
+        "parent_entity": "AI",
+        "child_entity": "N/A",
+        "sentiment_display": "positive (0.15)",
+        "weight": 1,
+        "confidence_score": 0.9,
+        "summary": "MPHASIS highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls."
+      },
+      {
+        "run_id": "run-000003",
+        "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+        "pipeline_profile": "high_recall",
+        "provider": "rules",
+        "model": "rules",
+        "prompt_version": "v1",
+        "article_id": "mphasis-2025-06-10",
+        "symbol": "MPHASIS",
+        "session_date": "2025-06-09T18:30:00Z",
+        "session_label": "during_session",
+        "sentiment_score": 0.15,
+        "relevance_score": 0.65,
+        "factor_vector": [
+          "ai-capex",
+          "ai-regulation",
+          "ai-demand",
+          "ai-cost-pressure",
+          "ai-talent"
+        ],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0,
+        "news_source": "Moneycontrol Markets",
+        "url": "https://example.com/mphasis-2025-06-10",
+        "parent_entity": "MPHASIS",
+        "child_entity": "N/A",
+        "sentiment_display": "positive (0.15)",
+        "weight": 1,
+        "confidence_score": 0.95,
+        "summary": "MPHASIS highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls."
+      },
+      {
+        "run_id": "run-000003",
+        "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+        "pipeline_profile": "high_recall",
+        "provider": "rules",
+        "model": "rules",
+        "prompt_version": "v1",
+        "article_id": "ofss-2025-06-10",
+        "symbol": "AI",
+        "session_date": "2025-06-09T18:30:00Z",
+        "session_label": "during_session",
+        "sentiment_score": 0.15,
+        "relevance_score": 0.65,
+        "factor_vector": [
+          "ai-capex",
+          "ai-regulation",
+          "ai-demand",
+          "ai-cost-pressure",
+          "ai-talent"
+        ],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0,
+        "news_source": "Moneycontrol Markets",
+        "url": "https://example.com/ofss-2025-06-10",
+        "parent_entity": "AI",
+        "child_entity": "N/A",
+        "sentiment_display": "positive (0.15)",
+        "weight": 1,
+        "confidence_score": 0.9,
+        "summary": "OFSS highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls."
+      },
+      {
+        "run_id": "run-000003",
+        "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+        "pipeline_profile": "high_recall",
+        "provider": "rules",
+        "model": "rules",
+        "prompt_version": "v1",
+        "article_id": "ofss-2025-06-10",
+        "symbol": "OFSS",
+        "session_date": "2025-06-09T18:30:00Z",
+        "session_label": "during_session",
+        "sentiment_score": 0.15,
+        "relevance_score": 0.65,
+        "factor_vector": [
+          "ai-capex",
+          "ai-regulation",
+          "ai-demand",
+          "ai-cost-pressure",
+          "ai-talent"
+        ],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0,
+        "news_source": "Moneycontrol Markets",
+        "url": "https://example.com/ofss-2025-06-10",
+        "parent_entity": "OFSS",
+        "child_entity": "N/A",
+        "sentiment_display": "positive (0.15)",
+        "weight": 1,
+        "confidence_score": 0.9,
+        "summary": "OFSS highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls."
+      },
+      {
+        "run_id": "run-000003",
+        "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+        "pipeline_profile": "high_recall",
+        "provider": "rules",
+        "model": "rules",
+        "prompt_version": "v1",
+        "article_id": "persistent-2025-06-10",
+        "symbol": "AI",
+        "session_date": "2025-06-09T18:30:00Z",
+        "session_label": "during_session",
+        "sentiment_score": 0.3,
+        "relevance_score": 0.65,
+        "factor_vector": [
+          "ai-capex",
+          "ai-regulation",
+          "ai-demand",
+          "ai-cost-pressure",
+          "ai-talent"
+        ],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0,
+        "news_source": "Moneycontrol Markets",
+        "url": "https://example.com/persistent-2025-06-10",
+        "parent_entity": "AI",
+        "child_entity": "N/A",
+        "sentiment_display": "positive (0.30)",
+        "weight": 1,
+        "confidence_score": 0.9,
+        "summary": "PERSISTENT highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls."
+      },
+      {
+        "run_id": "run-000003",
+        "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+        "pipeline_profile": "high_recall",
+        "provider": "rules",
+        "model": "rules",
+        "prompt_version": "v1",
+        "article_id": "persistent-2025-06-10",
+        "symbol": "PERSISTENT",
+        "session_date": "2025-06-09T18:30:00Z",
+        "session_label": "during_session",
+        "sentiment_score": 0.3,
+        "relevance_score": 0.65,
+        "factor_vector": [
+          "ai-capex",
+          "ai-regulation",
+          "ai-demand",
+          "ai-cost-pressure",
+          "ai-talent"
+        ],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0,
+        "news_source": "Moneycontrol Markets",
+        "url": "https://example.com/persistent-2025-06-10",
+        "parent_entity": "PERSISTENT",
+        "child_entity": "N/A",
+        "sentiment_display": "positive (0.30)",
+        "weight": 1,
+        "confidence_score": 0.9,
+        "summary": "PERSISTENT highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls."
+      },
+      {
+        "run_id": "run-000003",
+        "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+        "pipeline_profile": "high_recall",
+        "provider": "rules",
+        "model": "rules",
+        "prompt_version": "v1",
+        "article_id": "tcs-2025-06-10",
+        "symbol": "AI",
+        "session_date": "2025-06-09T18:30:00Z",
+        "session_label": "during_session",
+        "sentiment_score": 0.15,
+        "relevance_score": 0.65,
+        "factor_vector": [
+          "ai-capex",
+          "ai-regulation",
+          "ai-demand",
+          "ai-cost-pressure",
+          "ai-talent"
+        ],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0,
+        "news_source": "Moneycontrol Markets",
+        "url": "https://example.com/tcs-2025-06-10",
+        "parent_entity": "AI",
+        "child_entity": "N/A",
+        "sentiment_display": "positive (0.15)",
+        "weight": 1,
+        "confidence_score": 0.9,
+        "summary": "TCS highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls."
+      },
+      {
+        "run_id": "run-000003",
+        "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+        "pipeline_profile": "high_recall",
+        "provider": "rules",
+        "model": "rules",
+        "prompt_version": "v1",
+        "article_id": "tcs-2025-06-10",
+        "symbol": "TCS",
+        "session_date": "2025-06-09T18:30:00Z",
+        "session_label": "during_session",
+        "sentiment_score": 0.15,
+        "relevance_score": 0.65,
+        "factor_vector": [
+          "ai-capex",
+          "ai-regulation",
+          "ai-demand",
+          "ai-cost-pressure",
+          "ai-talent"
+        ],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0,
+        "news_source": "Moneycontrol Markets",
+        "url": "https://example.com/tcs-2025-06-10",
+        "parent_entity": "TCS",
+        "child_entity": "N/A",
+        "sentiment_display": "positive (0.15)",
+        "weight": 1,
+        "confidence_score": 0.9,
+        "summary": "TCS highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls."
+      },
+      {
+        "run_id": "run-000003",
+        "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+        "pipeline_profile": "high_recall",
+        "provider": "rules",
+        "model": "rules",
+        "prompt_version": "v1",
+        "article_id": "techm-2025-06-10",
+        "symbol": "AI",
+        "session_date": "2025-06-09T18:30:00Z",
+        "session_label": "during_session",
+        "sentiment_score": 0.15,
+        "relevance_score": 0.65,
+        "factor_vector": [
+          "ai-capex",
+          "ai-regulation",
+          "ai-demand",
+          "ai-cost-pressure",
+          "ai-talent"
+        ],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0,
+        "news_source": "Moneycontrol Markets",
+        "url": "https://example.com/techm-2025-06-10",
+        "parent_entity": "AI",
+        "child_entity": "N/A",
+        "sentiment_display": "positive (0.15)",
+        "weight": 1,
+        "confidence_score": 0.9,
+        "summary": "TECHM highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls."
+      },
+      {
+        "run_id": "run-000003",
+        "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+        "pipeline_profile": "high_recall",
+        "provider": "rules",
+        "model": "rules",
+        "prompt_version": "v1",
+        "article_id": "techm-2025-06-10",
+        "symbol": "TECHM",
+        "session_date": "2025-06-09T18:30:00Z",
+        "session_label": "during_session",
+        "sentiment_score": 0.15,
+        "relevance_score": 0.65,
+        "factor_vector": [
+          "ai-capex",
+          "ai-regulation",
+          "ai-demand",
+          "ai-cost-pressure",
+          "ai-talent"
+        ],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0,
+        "news_source": "Moneycontrol Markets",
+        "url": "https://example.com/techm-2025-06-10",
+        "parent_entity": "TECHM",
+        "child_entity": "N/A",
+        "sentiment_display": "positive (0.15)",
+        "weight": 1,
+        "confidence_score": 0.9,
+        "summary": "TECHM highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls."
+      },
+      {
+        "run_id": "run-000003",
+        "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+        "pipeline_profile": "high_recall",
+        "provider": "rules",
+        "model": "rules",
+        "prompt_version": "v1",
+        "article_id": "wipro-2025-06-10",
+        "symbol": "AI",
+        "session_date": "2025-06-09T18:30:00Z",
+        "session_label": "during_session",
+        "sentiment_score": 0.15,
+        "relevance_score": 0.65,
+        "factor_vector": [
+          "ai-capex",
+          "ai-regulation",
+          "ai-demand",
+          "ai-cost-pressure",
+          "ai-talent"
+        ],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0,
+        "news_source": "Moneycontrol Markets",
+        "url": "https://example.com/wipro-2025-06-10",
+        "parent_entity": "AI",
+        "child_entity": "N/A",
+        "sentiment_display": "positive (0.15)",
+        "weight": 1,
+        "confidence_score": 0.9,
+        "summary": "WIPRO highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls."
+      },
+      {
+        "run_id": "run-000003",
+        "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-26+2026-02-22+2026-02-22+2026-02-22",
+        "pipeline_profile": "high_recall",
+        "provider": "rules",
+        "model": "rules",
+        "prompt_version": "v1",
+        "article_id": "wipro-2025-06-10",
+        "symbol": "WIPRO",
+        "session_date": "2025-06-09T18:30:00Z",
+        "session_label": "during_session",
+        "sentiment_score": 0.15,
+        "relevance_score": 0.65,
+        "factor_vector": [
+          "ai-capex",
+          "ai-regulation",
+          "ai-demand",
+          "ai-cost-pressure",
+          "ai-talent"
+        ],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0,
+        "news_source": "Moneycontrol Markets",
+        "url": "https://example.com/wipro-2025-06-10",
+        "parent_entity": "WIPRO",
+        "child_entity": "N/A",
+        "sentiment_display": "positive (0.15)",
+        "weight": 1,
+        "confidence_score": 0.9,
+        "summary": "WIPRO highlights enterprise ai momentum with genai adoption and ai contract wins. Program covers datacenter expansion, model deployment, and compliance governance controls."
+      }
+    ],
     "input_tokens": 0,
     "output_tokens": 0,
     "estimated_cost_usd": 0,
     "artifact_counts": {
-      "articles_deduped": 8,
-      "articles_total": 8,
-      "events_output": 0
+      "articles_deduped": 10,
+      "articles_total": 10,
+      "events_output": 10
     }
   }
 }

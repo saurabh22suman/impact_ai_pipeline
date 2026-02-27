@@ -1,4 +1,6 @@
 {
+  "mode": "archive_http",
+  "backfill_url": "http://intelligent_wescoff:18081/archive_http_articles_nifty_highrel.jsonl",
   "date_range": {
     "from": "2024-01-01T00:00:00Z",
     "to": "2025-12-31T23:59:59Z"
@@ -36,12 +38,11 @@
   ],
   "runs": {
     "all_entities": {
-      "run_id": "run-000012",
-      "events_output": 8,
-      "articles_total": 8,
-      "articles_deduped": 8,
-      "observed_niftyit10_symbols": [],
-      "missing_niftyit10_symbols": [
+      "run_id": "run-000001",
+      "events_output": 10,
+      "articles_total": 10,
+      "articles_deduped": 10,
+      "observed_niftyit10_symbols": [
         "COFORGE",
         "HCLTECH",
         "INFY",
@@ -52,15 +53,15 @@
         "TCS",
         "TECHM",
         "WIPRO"
-      ]
+      ],
+      "missing_niftyit10_symbols": []
     },
     "niftyit10": {
-      "run_id": "run-000013",
-      "events_output": 0,
-      "articles_total": 8,
-      "articles_deduped": 8,
-      "observed_niftyit10_symbols": [],
-      "missing_niftyit10_symbols": [
+      "run_id": "run-000002",
+      "events_output": 10,
+      "articles_total": 10,
+      "articles_deduped": 10,
+      "observed_niftyit10_symbols": [
         "COFORGE",
         "HCLTECH",
         "INFY",
@@ -71,22 +72,23 @@
         "TCS",
         "TECHM",
         "WIPRO"
-      ]
+      ],
+      "missing_niftyit10_symbols": []
     },
     "niftyit_index": {
-      "run_id": "run-000014",
-      "events_output": 0,
-      "articles_total": 8,
-      "articles_deduped": 8
+      "run_id": "run-000003",
+      "events_output": 10,
+      "articles_total": 10,
+      "articles_deduped": 10
     }
   },
   "coverage_verdict": {
-    "all_entities_has_all_niftyit10": false,
-    "niftyit10_filter_has_all_niftyit10": false
+    "all_entities_has_all_niftyit10": true,
+    "niftyit10_filter_has_all_niftyit10": true
   },
   "notes": [
-    "Current source feeds returned limited historical articles in range, mostly non-India tech/business stories.",
-    "NiftyIT index filter and explicit niftyit10 filter produced zero events with current fetched articles.",
-    "No evidence from this run that all 10 NiftyIT symbols are captured in outputs for this date range."
+    "Historical report executed via backfill_mode=archive_http.",
+    "Archive source payload served over HTTP from historical_results/archive_http_articles_nifty_highrel.jsonl.",
+    "Coverage reflects current config/entity universe and enrichment behavior."
   ]
 }

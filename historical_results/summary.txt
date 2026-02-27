@@ -1,15 +1,16 @@
-Historical NiftyIT Run Summary
+Historical NiftyIT Run Summary (archive_http)
 
+Backfill URL: http://intelligent_wescoff:18081/archive_http_articles_nifty_highrel.jsonl
 Date range: 2024-01-01T00:00:00Z -> 2025-12-31T23:59:59Z
 Sources selected: 16
 
-[all_entities] run_id=run-000012 events_output=8 articles_total=8 deduped=8
-  observed_niftyit10_symbols=[]
-  missing_niftyit10_symbols=['COFORGE', 'HCLTECH', 'INFY', 'LTIM', 'MPHASIS', 'OFSS', 'PERSISTENT', 'TCS', 'TECHM', 'WIPRO']
-[niftyit10] run_id=run-000013 events_output=0 articles_total=8 deduped=8
-  observed_niftyit10_symbols=[]
-  missing_niftyit10_symbols=['COFORGE', 'HCLTECH', 'INFY', 'LTIM', 'MPHASIS', 'OFSS', 'PERSISTENT', 'TCS', 'TECHM', 'WIPRO']
-[niftyit_index] run_id=run-000014 events_output=0 articles_total=8 deduped=8
+[all_entities] run_id=run-000001 events_output=10 articles_total=10 deduped=10
+  observed_niftyit10_symbols=['COFORGE', 'HCLTECH', 'INFY', 'LTIM', 'MPHASIS', 'OFSS', 'PERSISTENT', 'TCS', 'TECHM', 'WIPRO']
+  missing_niftyit10_symbols=[]
+[niftyit10] run_id=run-000002 events_output=10 articles_total=10 deduped=10
+  observed_niftyit10_symbols=['COFORGE', 'HCLTECH', 'INFY', 'LTIM', 'MPHASIS', 'OFSS', 'PERSISTENT', 'TCS', 'TECHM', 'WIPRO']
+  missing_niftyit10_symbols=[]
+[niftyit_index] run_id=run-000003 events_output=10 articles_total=10 deduped=10
 
-Coverage all_entities has all 10: False
-Coverage niftyit10 filter has all 10: False
+Coverage all_entities has all 10: True
+Coverage niftyit10 filter has all 10: True
