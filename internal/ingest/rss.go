@@ -1,6 +1,7 @@
 package ingest
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/soloengine/ai-impact-scrapper/internal/config"
 	"github.com/soloengine/ai-impact-scrapper/internal/core"
+	"golang.org/x/net/html/charset"
 )
 
 type HTTPClient interface {
@@ -102,7 +104,9 @@ type rssDocument struct {
 
 func parseRSS(payload []byte) (rssDocument, error) {
 	var doc rssDocument
-	if err := xml.Unmarshal(payload, &doc); err != nil {
+	decoder := xml.NewDecoder(bytes.NewReader(payload))
+	decoder.CharsetReader = charset.NewReaderLabel
+	if err := decoder.Decode(&doc); err != nil {
 		return rssDocument{}, fmt.Errorf("parse rss: %w", err)
 	}
 	return doc, nil

@@ -111,10 +111,10 @@ func runOnce(client *http.Client, apiBaseURL, profile string, sourceIDs []string
 	ctx := context.Background()
 	now := time.Now().UTC()
 	req := core.RunRequest{
-		PipelineProfile: profile,
-		DateFrom:        now.Add(-2 * time.Hour),
-		DateTo:          now,
-		Sources:         sourceIDs,
+		PipelineProfile:    profile,
+		DateFrom:           now.Add(-2 * time.Hour),
+		DateTo:             now,
+		Sources:            sourceIDs,
 	}
 
 	runID, err := triggerRun(ctx, client, apiBaseURL, req)

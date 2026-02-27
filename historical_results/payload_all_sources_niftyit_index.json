@@ -1,0 +1,26 @@
+{
+  "pipeline_profile": "high_recall",
+  "sources": [
+    "bbc-business",
+    "bbc-technology",
+    "cnbc-world",
+    "moneycontrol-markets",
+    "economic-times-markets",
+    "et-information-technology",
+    "et-stocks",
+    "livemint-markets",
+    "livemint-technology",
+    "indian-express-business",
+    "nyt-business",
+    "nyt-technology",
+    "guardian-business",
+    "guardian-technology",
+    "marketwatch-topstories",
+    "zerodha-pulse"
+  ],
+  "entities": [
+    "NIFTIT"
+  ],
+  "date_from": "2024-01-01T00:00:00Z",
+  "date_to": "2025-12-31T23:59:59Z"
+}

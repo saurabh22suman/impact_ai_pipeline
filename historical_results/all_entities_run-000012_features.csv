@@ -1,0 +1,9 @@
+run_id,pipeline_profile,provider,model,prompt_version,article_id,symbol,session_date,session_label,sentiment_score,relevance_score,factor_vector,input_tokens,output_tokens,estimated_cost_usd
+run-000012,high_recall,mimo,mimo-v2-flash,v1,https://www.bbc.com/news/articles/czdg795m5epo#5,UNKNOWN,2025-12-21,pre_open,0.000000,0.000000,,1047,33,0.000059
+run-000012,high_recall,mimo,mimo-v2-flash,v1,https://www.bbc.com/news/articles/cqlk5gd3kv9o#5,UNKNOWN,2025-11-28,post_close,0.000000,0.000000,,1086,35,0.000061
+run-000012,high_recall,mimo,mimo-v2-flash,v1,https://www.bbc.com/news/articles/clyx9n5p7v7o#5,UNKNOWN,2025-11-24,pre_open,0.000000,0.000000,,1044,32,0.000059
+run-000012,high_recall,mimo,mimo-v2-flash,v1,https://www.bbc.com/news/articles/c4gkgxeeyzno#5,UNKNOWN,2025-11-20,during_session,0.000000,0.000000,,1071,32,0.000060
+run-000012,high_recall,mimo,mimo-v2-flash,v1,https://www.theguardian.com/technology/2025/oct/30/google-pixel-10-pro-fold-review-dust-resistant-foldable-phone-screen-ai,UNKNOWN,2025-10-29,during_session,0.000000,0.000000,,1677,33,0.000090
+run-000012,high_recall,mimo,mimo-v2-flash,v1,https://www.theguardian.com/technology/2025/oct/15/iphone-air-review-apple-pursuit-absolute-thinness,UNKNOWN,2025-10-14,during_session,0.000000,0.000000,,1407,32,0.000077
+run-000012,high_recall,mimo,mimo-v2-flash,v1,https://www.theguardian.com/technology/2025/oct/08/apple-iphone-17-pro-review-different-looks-zoom-battery-life,UNKNOWN,2025-10-07,during_session,0.000000,0.000000,,1641,32,0.000088
+run-000012,high_recall,mimo,mimo-v2-flash,v1,https://www.theguardian.com/technology/2025/nov/03/oakley-meta-vanguard-review-fantastic-ai-running-glasses-linked-to-garmin,UNKNOWN,2025-11-02,during_session,0.000000,0.000000,,1572,32,0.000085

@@ -29,7 +29,7 @@ func TestRelevanceGateDoesNotCountAISubstringFalsePositive(t *testing.T) {
 		Summary: "No standalone token should match",
 		Body:    "Commentary stayed focused on services revenue.",
 	}
-	entities := []config.Entity{{Name: "AI", Aliases: []string{"AI"}}}
+	entities := []config.Entity{{Name: "AI", Aliases: []string{"AI"}, Enabled: true}}
 
 	score := gate.Score(article, nil, entities)
 	if score != 0 {
@@ -43,7 +43,7 @@ func TestRelevanceGateCountsStandaloneAIToken(t *testing.T) {
 		Title:   "AI demand improved across enterprise tools",
 		Summary: "Management discussed AI roadmaps",
 	}
-	entities := []config.Entity{{Name: "AI", Aliases: []string{"AI"}}}
+	entities := []config.Entity{{Name: "AI", Aliases: []string{"AI"}, Enabled: true}}
 
 	score := gate.Score(article, nil, entities)
 	if score <= 0 {
@@ -79,6 +79,49 @@ func TestRelevanceGateScoresExpectedRange(t *testing.T) {
 	}
 	if gate.NeedsLLMRefinement(0.9, 0.8, 0.2) {
 		t.Fatalf("high novelty score should skip llm refinement")
+	}
+}
+
+func TestRelevanceGateDoesNotMatchSymbolInsideLargerWord(t *testing.T) {
+	gate := ingest.NewRelevanceGate()
+	article := core.Article{Title: "Infytech demand rises", Summary: "", Body: ""}
+	entities := []config.Entity{{Name: "Infosys", Symbol: "INFY", Aliases: []string{"INFY"}, Enabled: true}}
+
+	breakdown := gate.ScoreBreakdown(article, nil, entities)
+	if breakdown.EntityScore != 0 {
+		t.Fatalf("expected no INFY entity hit from Infytech, got entity_score %.4f", breakdown.EntityScore)
+	}
+	if breakdown.RelevanceScore != 0 {
+		t.Fatalf("expected no relevance from entity miss, got %.4f", breakdown.RelevanceScore)
+	}
+}
+
+func TestRelevanceGateScoreBreakdownReturnsComponents(t *testing.T) {
+	gate := ingest.NewRelevanceGate()
+	article := core.Article{
+		Title:   "Infosys expands AI capex",
+		Summary: "",
+		Body:    "",
+	}
+	factors := []config.Factor{
+		{ID: "f1", Keywords: []string{"ai capex", "hiring"}},
+	}
+	entities := []config.Entity{
+		{Name: "Infosys", Symbol: "INFY", Aliases: []string{"INFY"}, Enabled: true},
+	}
+
+	breakdown := gate.ScoreBreakdown(article, factors, entities)
+	if breakdown.FactorScore <= 0 {
+		t.Fatalf("expected positive factor score, got %.4f", breakdown.FactorScore)
+	}
+	if breakdown.EntityScore <= 0 {
+		t.Fatalf("expected positive entity score, got %.4f", breakdown.EntityScore)
+	}
+	if breakdown.RelevanceScore <= 0 {
+		t.Fatalf("expected positive relevance score, got %.4f", breakdown.RelevanceScore)
+	}
+	if breakdown.RelevanceScore != gate.Score(article, factors, entities) {
+		t.Fatalf("score breakdown relevance %.4f must match Score()", breakdown.RelevanceScore)
 	}
 }
 

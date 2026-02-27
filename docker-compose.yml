@@ -13,6 +13,12 @@ services:
       FILE_STORE_DIR: /data/outputs
       API_PORT: 8080
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/health >/dev/null || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 120s
 
   scheduler:
     image: golang:1.25
@@ -25,7 +31,8 @@ services:
     environment:
       SCHEDULER_API_BASE_URL: http://engine:8080
     depends_on:
-      - engine
+      engine:
+        condition: service_healthy
     restart: unless-stopped
 
   frontend:
@@ -38,7 +45,8 @@ services:
       - ./frontend/app.js:/usr/share/nginx/html/app.js:ro
       - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
-      - engine
+      engine:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:

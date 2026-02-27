@@ -3,6 +3,7 @@ const state = {
   selectedRunId: null,
   availableSources: [],
   availableEntities: [],
+  availableProfiles: [],
   refreshIntervalMs: 15000,
   selectors: {
     sources: {
@@ -24,6 +25,7 @@ const elements = {
   runForm: document.getElementById("run-form"),
   runSubmitStatus: document.getElementById("run-submit-status"),
   runSubmitBtn: document.getElementById("run-submit-btn"),
+  profileSelect: document.getElementById("pipeline-profile-select"),
   sourceForm: document.getElementById("source-form"),
   sourceSubmitStatus: document.getElementById("source-submit-status"),
   sourceSubmitBtn: document.getElementById("source-submit-btn"),
@@ -93,9 +95,10 @@ function statusBadge(status) {
   return `<span class="badge ${safeStatus}">${safeStatus}</span>`;
 }
 
-function toUtcISOStringFromLocalInput(value) {
+function toUtcISOStringFromDateInput(value) {
   if (!value) return "";
-  const d = new Date(value);
+  const normalized = `${String(value).trim()}T00:00:00Z`;
+  const d = new Date(normalized);
   if (Number.isNaN(d.getTime())) return "";
   return d.toISOString();
 }
@@ -318,6 +321,28 @@ function renderDetails(run) {
   `;
 }
 
+function renderPipelineProfileOptions() {
+  if (!elements.profileSelect) return;
+
+  const selected = elements.profileSelect.value;
+  const options = [
+    { value: "", label: "Use default profile" },
+    ...state.availableProfiles.map((profile) => ({ value: profile, label: profile })),
+  ];
+
+  elements.profileSelect.innerHTML = "";
+  for (const optionData of options) {
+    const option = document.createElement("option");
+    option.value = optionData.value;
+    option.textContent = optionData.label;
+    elements.profileSelect.appendChild(option);
+  }
+
+  if (options.some((option) => option.value === selected)) {
+    elements.profileSelect.value = selected;
+  }
+}
+
 function preserveSelections() {
   const validSourceIDs = new Set(state.availableSources.map((source) => source.id));
   state.selectors.sources.selected = new Set(
@@ -339,6 +364,11 @@ async function loadSummary() {
     elements.sourcesEnabled.textContent = String(config.sources_enabled ?? "-");
     elements.profilesCount.textContent = String((config.profiles || []).length);
 
+    state.availableProfiles = (Array.isArray(config.profiles) ? config.profiles : [])
+      .map((profile) => String(profile || "").trim())
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b));
+
     state.availableSources = (Array.isArray(config.sources) ? config.sources : [])
       .map(normalizeSource)
       .filter(Boolean)
@@ -350,6 +380,7 @@ async function loadSummary() {
       .sort((a, b) => a.symbol.localeCompare(b.symbol));
 
     preserveSelections();
+    renderPipelineProfileOptions();
     renderMultiSelect("sources");
     renderMultiSelect("entities");
   } catch (err) {
@@ -358,10 +389,12 @@ async function loadSummary() {
     elements.configVersion.textContent = "Failed to load";
     elements.sourcesEnabled.textContent = "-";
     elements.profilesCount.textContent = "-";
+    state.availableProfiles = [];
     state.availableSources = [];
     state.availableEntities = [];
     state.selectors.sources.selected.clear();
     state.selectors.entities.selected.clear();
+    renderPipelineProfileOptions();
     renderMultiSelect("sources");
     renderMultiSelect("entities");
     console.error(err);
@@ -396,8 +429,8 @@ async function submitRunForm(event) {
   if (selectedSources.length) payload.sources = selectedSources;
   if (selectedEntities.length) payload.entities = selectedEntities;
 
-  const dateFrom = toUtcISOStringFromLocalInput(dateFromRaw);
-  const dateTo = toUtcISOStringFromLocalInput(dateToRaw);
+  const dateFrom = toUtcISOStringFromDateInput(dateFromRaw);
+  const dateTo = toUtcISOStringFromDateInput(dateToRaw);
   if (dateFrom) payload.date_from = dateFrom;
   if (dateTo) payload.date_to = dateTo;
 

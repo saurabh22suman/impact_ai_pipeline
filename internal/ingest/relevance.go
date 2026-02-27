@@ -6,18 +6,29 @@ import (
 
 	"github.com/soloengine/ai-impact-scrapper/internal/config"
 	"github.com/soloengine/ai-impact-scrapper/internal/core"
+	"github.com/soloengine/ai-impact-scrapper/internal/entitymatch"
 )
 
 type RelevanceGate struct{}
+
+type RelevanceBreakdown struct {
+	RelevanceScore float64
+	FactorScore    float64
+	EntityScore    float64
+}
 
 func NewRelevanceGate() RelevanceGate {
 	return RelevanceGate{}
 }
 
 func (r RelevanceGate) Score(article core.Article, factors []config.Factor, entities []config.Entity) float64 {
+	return r.ScoreBreakdown(article, factors, entities).RelevanceScore
+}
+
+func (r RelevanceGate) ScoreBreakdown(article core.Article, factors []config.Factor, entities []config.Entity) RelevanceBreakdown {
 	text := strings.ToLower(strings.Join([]string{article.Title, article.Summary, article.Body}, " "))
 	if text == "" {
-		return 0
+		return RelevanceBreakdown{}
 	}
 
 	factorHits := 0
@@ -33,15 +44,8 @@ func (r RelevanceGate) Score(article core.Article, factors []config.Factor, enti
 
 	entityHits := 0
 	for _, entity := range entities {
-		if containsTerm(text, entity.Name) {
+		if matched, _, _ := entitymatch.MatchEntity(text, entity); matched {
 			entityHits++
-			continue
-		}
-		for _, alias := range entity.Aliases {
-			if alias != "" && containsTerm(text, alias) {
-				entityHits++
-				break
-			}
 		}
 	}
 
@@ -54,7 +58,11 @@ func (r RelevanceGate) Score(article core.Article, factors []config.Factor, enti
 		entityScore = float64(entityHits) / float64(len(entities))
 	}
 
-	return 0.65*factorScore + 0.35*entityScore
+	return RelevanceBreakdown{
+		RelevanceScore: 0.65*factorScore + 0.35*entityScore,
+		FactorScore:    factorScore,
+		EntityScore:    entityScore,
+	}
 }
 
 func containsTerm(text, term string) bool {

@@ -3,12 +3,16 @@ package core
 import "time"
 
 type RunRequest struct {
-	Entities        []string  `json:"entities"`
-	Sources         []string  `json:"sources"`
-	DateFrom        time.Time `json:"date_from"`
-	DateTo          time.Time `json:"date_to"`
-	RawDataToggle   bool      `json:"raw_data_toggle"`
-	PipelineProfile string    `json:"pipeline_profile"`
+	Entities         []string  `json:"entities"`
+	Sources          []string  `json:"sources"`
+	DateFrom         time.Time `json:"date_from"`
+	DateTo           time.Time `json:"date_to"`
+	RawDataToggle    bool      `json:"raw_data_toggle"`
+	PipelineProfile  string    `json:"pipeline_profile"`
+	BackfillMode     string    `json:"backfill_mode,omitempty"`
+	BackfillFilePath string    `json:"backfill_file_path,omitempty"`
+	BackfillURL      string    `json:"backfill_url,omitempty"`
+	BackfillFormat   string    `json:"backfill_format,omitempty"`
 }
 
 type RunStatus string

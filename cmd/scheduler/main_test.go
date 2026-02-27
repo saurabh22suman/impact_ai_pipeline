@@ -88,10 +88,10 @@ func TestTriggerRunSuccess(t *testing.T) {
 	defer srv.Close()
 
 	req := core.RunRequest{
-		PipelineProfile: "cost_optimized",
-		Sources:         []string{"source_a", "source_b"},
-		DateFrom:        time.Date(2026, 2, 22, 6, 0, 0, 0, time.UTC),
-		DateTo:          time.Date(2026, 2, 22, 8, 0, 0, 0, time.UTC),
+		PipelineProfile:    "cost_optimized",
+		Sources:            []string{"source_a", "source_b"},
+		DateFrom:           time.Date(2026, 2, 22, 6, 0, 0, 0, time.UTC),
+		DateTo:             time.Date(2026, 2, 22, 8, 0, 0, 0, time.UTC),
 	}
 
 	runID, err := triggerRun(context.Background(), srv.Client(), srv.URL, req)

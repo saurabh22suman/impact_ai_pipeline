@@ -1,0 +1,1 @@
+run_id,pipeline_profile,provider,model,prompt_version,article_id,symbol,session_date,session_label,sentiment_score,relevance_score,factor_vector,input_tokens,output_tokens,estimated_cost_usd

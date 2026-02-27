@@ -1,0 +1,38 @@
+{
+  "pipeline_profile": "high_recall",
+  "sources": [
+    "bbc-business",
+    "bbc-technology",
+    "cnbc-world",
+    "moneycontrol-markets",
+    "economic-times-markets",
+    "et-information-technology",
+    "et-stocks",
+    "livemint-markets",
+    "livemint-technology",
+    "indian-express-business",
+    "nyt-business",
+    "nyt-technology",
+    "guardian-business",
+    "guardian-technology",
+    "marketwatch-topstories",
+    "zerodha-pulse"
+  ],
+  "entities": [
+    "TCS",
+    "INFY",
+    "HCLTECH",
+    "WIPRO",
+    "TECHM",
+    "LTIM",
+    "MPHASIS",
+    "COFORGE",
+    "OFSS",
+    "PERSISTENT"
+  ],
+  "date_from": "2024-01-01T00:00:00Z",
+  "date_to": "2025-12-31T23:59:59Z",
+  "backfill_mode": "archive_http",
+  "backfill_url": "http://intelligent_wescoff:18081/archive_http_articles.jsonl",
+  "backfill_format": "jsonl"
+}

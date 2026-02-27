@@ -27,7 +27,7 @@ entities:
   - id: nse-index-niftit
     symbol: NIFTIT
     name: Nifty IT
-    aliases: ["NIFTIT", "Nifty IT"]
+    aliases: ["NIFTIT", "Nifty IT", "NiftyIT"]
     exchange: NSE
     sector: Index
     type: index

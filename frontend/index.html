@@ -40,7 +40,9 @@
         <form id="run-form" class="run-form">
           <label>
             Pipeline profile
-            <input type="text" name="pipeline_profile" placeholder="cost_optimized" />
+            <select name="pipeline_profile" id="pipeline-profile-select">
+              <option value="">Use default profile</option>
+            </select>
           </label>
 
           <label class="selector-label">
@@ -71,11 +73,11 @@
 
           <label>
             Date from (UTC)
-            <input type="datetime-local" name="date_from" />
+            <input type="date" name="date_from" />
           </label>
           <label>
             Date to (UTC)
-            <input type="datetime-local" name="date_to" />
+            <input type="date" name="date_to" />
           </label>
           <button type="submit" id="run-submit-btn">Trigger run</button>
         </form>

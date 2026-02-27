@@ -216,8 +216,12 @@ func (s *server) handleRunCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	articles, notices, err := engine.CollectArticles(r.Context(), s.rt.Fetcher, sources, req.DateFrom, req.DateTo)
+	articles, notices, err := engine.CollectArticlesForRequest(r.Context(), s.rt.Fetcher, sources, req)
 	if err != nil {
+		if strings.EqualFold(strings.TrimSpace(req.BackfillMode), "local_file") {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 		http.Error(w, err.Error(), http.StatusBadGateway)
 		return
 	}

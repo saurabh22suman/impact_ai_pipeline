@@ -45,7 +45,8 @@ func Bootstrap() (*Runtime, error) {
 	httpClient := &http.Client{Timeout: 20 * time.Second}
 	rssFetcher := ingest.NewRSSFetcher(httpClient)
 	directFetcher := ingest.NewDirectFetcher(httpClient)
-	fetcher := ingest.NewRouterFetcher(rssFetcher, directFetcher)
+	pulseFetcher := ingest.NewPulseFetcher(httpClient, ingest.NoopBrowserExtractor{})
+	fetcher := ingest.NewRouterFetcher(rssFetcher, directFetcher, pulseFetcher)
 
 	return &Runtime{
 		Config:    cfg,

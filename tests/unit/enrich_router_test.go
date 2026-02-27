@@ -60,6 +60,9 @@ func TestRouterSelectsProviderFromFallbackChain(t *testing.T) {
 	if out.InputTokens <= 0 {
 		t.Fatalf("expected positive token usage")
 	}
+	if len(out.Entities.Matches) != 0 {
+		t.Fatalf("expected stub disambiguation to return empty matches in this test")
+	}
 }
 
 func TestRouterRespectsProviderBudget(t *testing.T) {
@@ -174,6 +177,80 @@ func TestRouterStopsFallbackOnFatalAuthError(t *testing.T) {
 	}
 	if !errors.Is(err, providers.ErrProviderAuth) {
 		t.Fatalf("expected provider auth error, got %v", err)
+	}
+}
+
+func TestRouterIncludesEntityDisambiguationTokenUsage(t *testing.T) {
+	server := newMimoServer(t, statusPlan{http.StatusOK, http.StatusOK, http.StatusOK}, func(_ int, call int) string {
+		switch call {
+		case 1:
+			return `{"label":"neutral","score":0.0}`
+		case 2:
+			return `{"tags":[{"factor_id":"ai-demand","name":"AI Demand","category":"demand","score":0.6,"matched_by":"llm","llm_refined":true}]}`
+		default:
+			return `{"matches":[{"entity_id":"nse-infy","symbol":"INFY","name":"Infosys Ltd","confidence":0.8,"method":"llm_disambiguation"}]}`
+		}
+	})
+	defer server.Close()
+
+	t.Setenv("MIMO_API_KEY", "test-key")
+	t.Setenv("MIMO_BASE_URL", server.URL)
+	t.Setenv("MIMO_TIMEOUT_SECONDS", "20")
+	t.Setenv("MIMO_MODEL", "")
+
+	cfg := config.ProvidersFile{
+		Defaults: config.ProviderDefaults{CircuitBreakerFailures: 2, CircuitBreakerSeconds: 60},
+		Providers: []config.Provider{{Name: "mimo", Model: "mimo-v2-synthetic", Enabled: true, PricePer1KInput: 0.1, PricePer1KOutput: 0.1}},
+		FallbackChain: []string{"mimo:mimo-v2-synthetic"},
+	}
+
+	r := enrich.NewProviderRouter(cfg)
+	out, err := r.Enrich(context.Background(), providers.ClassificationRequest{Text: "Infosys wins AI contract"})
+	if err != nil {
+		t.Fatalf("enrich failed: %v", err)
+	}
+	if len(out.Entities.Matches) != 1 || out.Entities.Matches[0].Symbol != "INFY" {
+		t.Fatalf("expected one INFY entity match, got %+v", out.Entities.Matches)
+	}
+	if out.InputTokens <= 0 || out.OutputTokens <= 0 {
+		t.Fatalf("expected positive token accounting, got input=%d output=%d", out.InputTokens, out.OutputTokens)
+	}
+}
+
+func TestRouterIgnoresEntityDisambiguationParseError(t *testing.T) {
+	server := newMimoServer(t, statusPlan{http.StatusOK, http.StatusOK, http.StatusOK}, func(_ int, call int) string {
+		switch call {
+		case 1:
+			return `{"label":"neutral","score":0.0}`
+		case 2:
+			return `{"tags":[]}`
+		default:
+			return `/not-json`
+		}
+	})
+	defer server.Close()
+
+	t.Setenv("MIMO_API_KEY", "test-key")
+	t.Setenv("MIMO_BASE_URL", server.URL)
+	t.Setenv("MIMO_TIMEOUT_SECONDS", "20")
+	t.Setenv("MIMO_MODEL", "")
+
+	cfg := config.ProvidersFile{
+		Defaults:      config.ProviderDefaults{CircuitBreakerFailures: 2, CircuitBreakerSeconds: 60},
+		Providers:     []config.Provider{{Name: "mimo", Model: "mimo-v2-synthetic", Enabled: true, PricePer1KInput: 0.1, PricePer1KOutput: 0.1}},
+		FallbackChain: []string{"mimo:mimo-v2-synthetic"},
+	}
+
+	r := enrich.NewProviderRouter(cfg)
+	out, err := r.Enrich(context.Background(), providers.ClassificationRequest{Text: "Infosys wins AI contract"})
+	if err != nil {
+		t.Fatalf("expected enrich to succeed with empty entity matches on parse error, got %v", err)
+	}
+	if out.Provider != "mimo" {
+		t.Fatalf("expected provider mimo, got %q", out.Provider)
+	}
+	if len(out.Entities.Matches) != 0 {
+		t.Fatalf("expected empty entity matches, got %+v", out.Entities.Matches)
 	}
 }
 

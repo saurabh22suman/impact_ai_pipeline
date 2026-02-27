@@ -169,6 +169,23 @@ func TestLoadConfigRejectsInvalidSourceKind(t *testing.T) {
 	}
 }
 
+func TestLoadConfigAcceptsPulseSourceKind(t *testing.T) {
+	dir := t.TempDir()
+	writeBaseConfigFiles(t, dir)
+	mustWrite(t, dir, "sources.yaml", "version: v1\nsources:\n  - id: pulse-a\n    name: Pulse A\n    kind: pulse\n    url: https://example.com/pulse\n    region: global\n    language: en\n    enabled: true\n    crawl_fallback: false\n")
+
+	cfg, err := config.Load(dir)
+	if err != nil {
+		t.Fatalf("load config: %v", err)
+	}
+	if len(cfg.Sources.Sources) != 1 {
+		t.Fatalf("expected one source, got %d", len(cfg.Sources.Sources))
+	}
+	if cfg.Sources.Sources[0].Kind != config.SourceKindPulse {
+		t.Fatalf("expected source kind %q, got %q", config.SourceKindPulse, cfg.Sources.Sources[0].Kind)
+	}
+}
+
 func TestLoadConfigDefaultsEmptySourceKindToRSS(t *testing.T) {
 	dir := t.TempDir()
 	writeBaseConfigFiles(t, dir)
@@ -183,6 +200,27 @@ func TestLoadConfigDefaultsEmptySourceKindToRSS(t *testing.T) {
 	}
 	if cfg.Sources.Sources[0].Kind != config.SourceKindRSS {
 		t.Fatalf("expected default source kind %q, got %q", config.SourceKindRSS, cfg.Sources.Sources[0].Kind)
+	}
+}
+
+func TestDefaultConfigIncludesZerodhaPulseSource(t *testing.T) {
+	cfg, err := config.Load(filepath.Join("..", "..", "configs"))
+	if err != nil {
+		t.Fatalf("load config: %v", err)
+	}
+
+	found := false
+	for _, source := range cfg.Sources.Sources {
+		if source.ID != "zerodha-pulse" {
+			continue
+		}
+		found = true
+		if source.Kind != config.SourceKindPulse {
+			t.Fatalf("expected zerodha-pulse kind %q, got %q", config.SourceKindPulse, source.Kind)
+		}
+	}
+	if !found {
+		t.Fatalf("expected zerodha-pulse in default sources")
 	}
 }
 

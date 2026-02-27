@@ -9,9 +9,13 @@ import (
 )
 
 func TestEntityMapperDoesNotMatchAISubstringInLargerWord(t *testing.T) {
-	mapper := enrich.NewEntityMapper([]config.Entity{
-		{ID: "theme-ai", Symbol: "AI", Name: "AI", Aliases: []string{"AI"}, Enabled: true},
-	})
+	mapper := enrich.NewEntityMapper([]config.Entity{{
+		ID:      "theme-ai",
+		Symbol:  "AI",
+		Name:    "AI",
+		Aliases: []string{"AI"},
+		Enabled: true,
+	}})
 
 	article := core.Article{
 		Title:   "Executives said the main concern was regulation",
@@ -26,9 +30,13 @@ func TestEntityMapperDoesNotMatchAISubstringInLargerWord(t *testing.T) {
 }
 
 func TestEntityMapperMatchesStandaloneAIToken(t *testing.T) {
-	mapper := enrich.NewEntityMapper([]config.Entity{
-		{ID: "theme-ai", Symbol: "AI", Name: "AI", Aliases: []string{"AI"}, Enabled: true},
-	})
+	mapper := enrich.NewEntityMapper([]config.Entity{{
+		ID:      "theme-ai",
+		Symbol:  "AI",
+		Name:    "AI",
+		Aliases: []string{"AI"},
+		Enabled: true,
+	}})
 
 	article := core.Article{
 		Title:   "AI investments increase in enterprise platforms",
@@ -41,5 +49,20 @@ func TestEntityMapperMatchesStandaloneAIToken(t *testing.T) {
 	}
 	if matches[0].Symbol != "AI" {
 		t.Fatalf("expected AI symbol match, got %q", matches[0].Symbol)
+	}
+}
+
+func TestEntityMapperUsesBoundaryAwareMatching(t *testing.T) {
+	mapper := enrich.NewEntityMapper([]config.Entity{{
+		ID:      "nse-infy",
+		Name:    "Infosys",
+		Symbol:  "INFY",
+		Aliases: []string{"INFY"},
+		Enabled: true,
+	}})
+
+	matches := mapper.Map(core.Article{Title: "Infytech outlook improves"})
+	if len(matches) != 0 {
+		t.Fatalf("expected no matches, got %+v", matches)
 	}
 }

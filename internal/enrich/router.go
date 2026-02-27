@@ -15,6 +15,7 @@ type RouterResult struct {
 	Model         string
 	Sentiment     providers.SentimentResult
 	Factors       providers.FactorResult
+	Entities      providers.EntityDisambiguationResult
 	InputTokens   int
 	OutputTokens  int
 	EstimatedCost float64
@@ -120,10 +121,19 @@ func (r *ProviderRouter) Enrich(ctx context.Context, req providers.Classificatio
 			continue
 		}
 
+		entities := providers.EntityDisambiguationResult{}
+		if disambiguated, err := client.DisambiguateEntity(ctx, req); err != nil {
+			if providers.IsFatalProviderError(err) {
+				return RouterResult{}, err
+			}
+		} else {
+			entities = disambiguated
+		}
+
 		r.resetFailure(key)
 		price := r.priceMap[key]
-		inputTokens := sentiment.InputTokens + factors.InputTokens
-		outputTokens := sentiment.OutputTokens + factors.OutputTokens
+		inputTokens := sentiment.InputTokens + factors.InputTokens + entities.InputTokens
+		outputTokens := sentiment.OutputTokens + factors.OutputTokens + entities.OutputTokens
 		cost := estimateCost(price, inputTokens, outputTokens)
 		r.recordUsage(key, inputTokens, outputTokens, cost)
 
@@ -132,6 +142,7 @@ func (r *ProviderRouter) Enrich(ctx context.Context, req providers.Classificatio
 			Model:         client.Model(),
 			Sentiment:     sentiment,
 			Factors:       factors,
+			Entities:      entities,
 			InputTokens:   inputTokens,
 			OutputTokens:  outputTokens,
 			EstimatedCost: cost,

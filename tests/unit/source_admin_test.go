@@ -71,6 +71,29 @@ func TestSourceAdminCreateRejectsInvalidInput(t *testing.T) {
 	}
 }
 
+func TestSourceAdminCreateAcceptsPulseKind(t *testing.T) {
+	dir := t.TempDir()
+	writeBaseConfigFiles(t, dir)
+	mustWrite(t, dir, "sources.yaml", "version: v1\nsources:\n  - id: base\n    name: Base\n    kind: rss\n    url: https://example.com/rss\n    region: global\n    language: en\n    enabled: true\n    crawl_fallback: false\n")
+
+	svc := sourceadmin.NewService(dir)
+	created, err := svc.Create(sourceadmin.CreateSourceInput{
+		ID:       "pulse-source",
+		Name:     "Pulse Source",
+		Kind:     "pulse",
+		URL:      "https://example.com/pulse",
+		Region:   "global",
+		Language: "en",
+		Enabled:  true,
+	})
+	if err != nil {
+		t.Fatalf("create source: %v", err)
+	}
+	if created.Kind != config.SourceKindPulse {
+		t.Fatalf("expected source kind %q, got %q", config.SourceKindPulse, created.Kind)
+	}
+}
+
 func TestSourceAdminCreateRejectsDuplicateID(t *testing.T) {
 	dir := t.TempDir()
 	writeBaseConfigFiles(t, dir)

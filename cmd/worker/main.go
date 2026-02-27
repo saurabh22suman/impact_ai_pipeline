@@ -48,7 +48,7 @@ func runOnce(rt *engine.Runtime, profile string, sourceIDs []string) {
 		return
 	}
 
-	articles, notices, err := engine.CollectArticles(ctx, rt.Fetcher, sources, req.DateFrom, req.DateTo)
+	articles, notices, err := engine.CollectArticlesForRequest(ctx, rt.Fetcher, sources, req)
 	if err != nil {
 		log.Printf("worker collection failed: %v", err)
 		return

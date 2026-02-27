@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Impact Pipeline — Backend/API Developer Guide</title>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --panel: #111827;
+        --panel-2: #1f2937;
+        --text: #e5e7eb;
+        --muted: #9ca3af;
+        --accent: #38bdf8;
+        --ok: #34d399;
+        --warn: #f59e0b;
+        --code: #0b1020;
+        --border: #334155;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.55;
+      }
+
+      .wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+
+      h1, h2, h3 {
+        line-height: 1.25;
+        margin: 0 0 12px;
+      }
+
+      h1 { font-size: 30px; }
+      h2 {
+        margin-top: 28px;
+        font-size: 24px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 8px;
+      }
+      h3 { margin-top: 20px; font-size: 18px; }
+
+      p { margin: 8px 0 12px; }
+      ul, ol { margin: 8px 0 12px 24px; }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        margin: 12px 0;
+      }
+
+      .note {
+        border-left: 4px solid var(--accent);
+        background: #0b1228;
+        padding: 12px 14px;
+        margin: 10px 0;
+        border-radius: 8px;
+      }
+
+      .warn {
+        border-left: 4px solid var(--warn);
+        background: #1f1a0b;
+      }
+
+      .ok {
+        border-left: 4px solid var(--ok);
+        background: #0c1f1a;
+      }
+
+      code {
+        background: var(--code);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 2px 6px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.92em;
+      }
+
+      pre {
+        background: var(--code);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px;
+        overflow-x: auto;
+      }
+
+      pre code {
+        border: 0;
+        background: transparent;
+        padding: 0;
+      }
+
+      .muted { color: var(--muted); }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0;
+      }
+
+      th, td {
+        text-align: left;
+        border: 1px solid var(--border);
+        padding: 8px;
+        vertical-align: top;
+      }
+
+      th {
+        background: var(--panel-2);
+      }
+
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="card">
+        <h1>AI Impact Pipeline — Backend/API Developer Guide</h1>
+        <p class="muted">
+          Scope: backend + API runtime, execution flow, assumptions, invariants, and change safety.
+        </p>
+      </header>
+
+      <section>
+        <h2>1) Purpose and Audience</h2>
+        <div class="card">
+          <p>
+            This guide is for backend/API developers working on the Go runtime. It explains how the
+            codebase connects end-to-end: config loading, ingestion, enrichment, impact row generation,
+            persistence, export, and API endpoints.
+          </p>
+          <p>
+            It is intentionally practical: where to edit, what assumptions exist, and what to re-verify
+            before shipping changes.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>2) Runtime Architecture (System-first view)</h2>
+        <div class="card">
+          <h3>Main components</h3>
+          <ul>
+            <li><strong>Frontend (nginx/static)</strong>: UI and API proxy (see <code>frontend/</code>).</li>
+            <li><strong>API process</strong>: <code>cmd/api/main.go</code> owns HTTP endpoints and request orchestration.</li>
+            <li><strong>Engine service</strong>: <code>internal/engine/service.go</code> owns pipeline execution and exports.</li>
+            <li><strong>Ingest fetchers/router</strong>: <code>internal/ingest/router.go</code> chooses RSS/direct/pulse strategy.</li>
+            <li><strong>Enrichment + provider routing</strong>: <code>internal/enrich/enricher.go</code> and router/providers.</li>
+            <li><strong>Storage abstraction</strong>: <code>internal/storage/env.go</code> picks file/memory/persistent mode.</li>
+          </ul>
+
+          <h3>Boot flow</h3>
+          <ol>
+            <li><code>engine.Bootstrap()</code> loads config and storage (<code>internal/engine/bootstrap.go:25</code>).</li>
+            <li>Creates <code>Service</code> with config + store (<code>internal/engine/bootstrap.go:44</code>).</li>
+            <li>Constructs fetchers and <code>RouterFetcher</code> (<code>internal/engine/bootstrap.go:46-49</code>).</li>
+            <li>API server wires handlers in <code>cmd/api/main.go:46-53</code>.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section>
+        <h2>3) End-to-End Execution Path</h2>
+        <div class="card">
+          <h3>Run request path</h3>
+          <p><code>POST /v1/runs</code> in <code>cmd/api/main.go:196</code> performs:</p>
+          <ol>
+            <li>Decode <code>core.RunRequest</code> and fill defaults (<code>cmd/api/main.go:203-211</code>).</li>
+            <li>Resolve selected sources (<code>engine.ResolveSources</code>, call at <code>cmd/api/main.go:213</code>).</li>
+            <li>Collect articles via fetcher router (<code>cmd/api/main.go:219</code>).</li>
+            <li>Execute pipeline via <code>Service.Run</code> (<code>cmd/api/main.go:225</code>).</li>
+            <li>Return run result + notices.</li>
+          </ol>
+
+          <h3>Pipeline core inside <code>Service.Run</code></h3>
+          <ol>
+            <li>Profile lookup (<code>internal/engine/service.go:51</code>).</li>
+            <li>Dedupe ingested articles (<code>internal/engine/service.go:67</code>).</li>
+            <li>Entity selection + impact mode setup (<code>internal/engine/service.go:71</code>).</li>
+            <li>For each article:
+              <ul>
+                <li>Relevance score and threshold gate (<code>internal/engine/service.go:76-79</code>).</li>
+                <li>Enrichment (<code>internal/engine/service.go:81</code>).</li>
+                <li>NSE session alignment (<code>internal/engine/service.go:86-91</code>).</li>
+                <li>Feature row generation (<code>internal/engine/service.go:93</code>).</li>
+              </ul>
+            </li>
+            <li>Aggregate costs/tokens and artifact counts (<code>internal/engine/service.go:108-118</code>).</li>
+            <li>Persist run/events/feature rows/artifacts (<code>internal/engine/service.go:120-131</code>).</li>
+          </ol>
+        </div>
+      </section>
+
+      <section>
+        <h2>4) Configuration Model and Assumptions</h2>
+        <div class="card">
+          <h3>Config loading</h3>
+          <p>
+            <code>config.Load</code> loads multiple YAML files and validates invariants
+            (<code>internal/config/loader.go:13-66</code>).
+          </p>
+          <ul>
+            <li><code>sources.yaml</code>, <code>entities.niftyit.yaml</code>, <code>entities.custom.yaml</code></li>
+            <li>optional <code>entity_groups.yaml</code></li>
+            <li><code>factors.yaml</code>, <code>providers.yaml</code>, <code>pipelines.yaml</code></li>
+          </ul>
+
+          <h3>Important invariants (enforced)</h3>
+          <ul>
+            <li>At least one enabled source/provider/profile/factor (<code>loader.go:166-212</code>).</li>
+            <li>Default profile must exist (<code>loader.go:213-215</code>).</li>
+            <li>Fallback chain entries must point to enabled provider+model (<code>loader.go:217-225</code>).</li>
+            <li>Entity groups require valid parent/child roles (<code>loader.go:187-206</code>).</li>
+          </ul>
+
+          <div class="note warn">
+            <strong>Assumption:</strong> config validation is strict. Most “weird runtime behavior” after config edits
+            comes from invalid YAML semantics, not pipeline logic.
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>5) Ingest, Relevance, Enrich, Impact, Export (Core internals)</h2>
+
+        <div class="card">
+          <h3>Ingest router</h3>
+          <p>
+            <code>RouterFetcher.FetchWithNotices</code> branches by normalized source kind and can fallback from
+            RSS to direct when <code>crawl_fallback=true</code> (<code>internal/ingest/router.go:34-61</code>).
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Relevance + LLM refinement trigger</h3>
+          <p>
+            Relevance score is computed first and compared to profile thresholds. Enricher sets
+            <code>needsLLM</code> using
+            <code>NeedsLLMRefinement(score, noveltyThreshold, ambiguityThreshold)</code>
+            (<code>internal/enrich/enricher.go:44</code>).
+          </p>
+          <div class="note">
+            LLM/provider path is conditional. If not triggered (or router errors), deterministic/rules output remains.
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Entity matching semantics</h3>
+          <p>
+            Entity matching uses mapper + matcher and only considers enabled entities. This affects relevance and
+            downstream event selection behavior.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Impact mode (parent-child)</h3>
+          <p>
+            Entity selection builds an <code>impactModeConfig</code> from requested entities and entity groups
+            (<code>internal/engine/service.go:259</code>). Parent-child feature rows are built in
+            <code>internal/engine/impact_rows.go</code>.
+          </p>
+          <p>
+            In impact mode, parent/child mapping constraints determine which rows are emitted and how
+            <code>ParentEntity</code>/<code>ChildEntity</code> are assigned.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Export behavior</h3>
+          <ul>
+            <li><code>ExportJSONL</code> requires non-empty events (<code>internal/engine/service.go:135-141</code>).</li>
+            <li><code>ExportCSV</code> emits business-facing feature columns via exporter CSV (<code>internal/engine/service.go:143-150</code>, <code>internal/export/exporter.go:32</code>).</li>
+            <li><code>ExportTOON</code> requires non-empty events (<code>internal/engine/service.go:152-158</code>).</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>6) API Contract and Handler-to-Service Map</h2>
+        <div class="card">
+          <table>
+            <thead>
+              <tr>
+                <th>Endpoint</th>
+                <th>Handler</th>
+                <th>Core path</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>GET /health</code></td>
+                <td><code>handleHealth</code></td>
+                <td>Light status response</td>
+              </tr>
+              <tr>
+                <td><code>GET /v1/config</code></td>
+                <td><code>handleConfig</code></td>
+                <td>Exposes effective sources/entities/providers/profiles</td>
+              </tr>
+              <tr>
+                <td><code>GET/POST /v1/sources</code></td>
+                <td><code>handleSources</code>, <code>handleSourceCreate</code></td>
+                <td>Persist source + reload runtime config/service</td>
+              </tr>
+              <tr>
+                <td><code>POST /v1/runs</code></td>
+                <td><code>handleRunCreate</code></td>
+                <td>Resolve sources → collect → <code>Service.Run</code></td>
+              </tr>
+              <tr>
+                <td><code>GET /v1/runs</code></td>
+                <td><code>handleRuns</code></td>
+                <td><code>Service.ListRuns</code></td>
+              </tr>
+              <tr>
+                <td><code>GET /v1/runs/{id}</code></td>
+                <td><code>handleRunByID</code></td>
+                <td><code>Service.GetRun</code></td>
+              </tr>
+              <tr>
+                <td><code>GET /v1/runs/{id}/export</code></td>
+                <td><code>handleRunByID</code></td>
+                <td><code>ExportJSONL</code>/<code>ExportCSV</code>/<code>ExportTOON</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>7) Storage and Artifact Persistence</h2>
+        <div class="card">
+          <h3>Store selection</h3>
+          <p>
+            <code>NewStoreFromEnv</code> chooses by <code>STORAGE_MODE</code>:
+            memory, file, or persistent (<code>internal/storage/env.go:12-73</code>).
+          </p>
+
+          <h3>File mode layout</h3>
+          <pre><code>outputs/
+  runs/
+    &lt;run-id&gt;/
+      run.json
+      request.json
+      events.json
+      feature_rows.json
+      exports/
+        events.jsonl
+        features.csv
+        events.toon.jsonl</code></pre>
+
+          <p>
+            Persistence writes are driven by <code>persistRunArtifacts</code>
+            (<code>internal/engine/service.go:168-200</code>) and file store methods
+            (<code>internal/storage/file_store.go</code>).
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>8) Key Assumptions and Common Pitfalls</h2>
+        <div class="card">
+          <ul>
+            <li>Unknown requested entities are treated as invalid selection (400 path from API).</li>
+            <li>No-events runs can surface as errors in exports and some tests if fixtures are too weak.</li>
+            <li>Provider routing is threshold-dependent; deterministic output is expected in many paths.</li>
+            <li>Impact-mode selection can filter out rows if parent-child constraints are not satisfied.</li>
+            <li>Frontend/API tests may assert exact form/control behavior; UI contract changes must update tests.</li>
+          </ul>
+
+          <div class="note ok">
+            When debugging “unexpected provider=rules”, check relevance thresholds and
+            <code>NeedsLLMRefinement</code> first.
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>9) Testing Strategy (Backend/API)</h2>
+        <div class="card">
+          <h3>Test layers</h3>
+          <ul>
+            <li><strong>Unit:</strong> local logic and component-level behavior under <code>tests/unit</code>.</li>
+            <li><strong>Integration:</strong> service-level orchestration + config interactions under <code>tests/integration</code>.</li>
+            <li><strong>E2E:</strong> API/frontend contract checks under <code>tests/e2e</code>.</li>
+          </ul>
+
+          <h3>Recommended verification commands</h3>
+          <pre><code>go test ./tests/unit -run 'TestServiceRun|TestLoadConfig|TestEnricher|TestExporter|TestCollectArticles' -count=1
+go test ./tests/integration -count=1
+go test ./... -count=1</code></pre>
+        </div>
+      </section>
+
+      <section>
+        <h2>10) Safe Change Checklist</h2>
+        <div class="card">
+          <h3>If you change API request/response fields</h3>
+          <ul>
+            <li>Update handlers and any scheduler/worker callers.</li>
+            <li>Update e2e/API tests that assert payload shape.</li>
+          </ul>
+
+          <h3>If you change relevance/profile thresholds</h3>
+          <ul>
+            <li>Re-check enricher/provider routing tests.</li>
+            <li>Re-check integration tests expecting provider behavior.</li>
+          </ul>
+
+          <h3>If you change entity matching or entity config semantics</h3>
+          <ul>
+            <li>Re-run entity mapper + service entity selection tests.</li>
+            <li>Validate unknown/alias/symbol behavior explicitly.</li>
+          </ul>
+
+          <h3>If you change impact/export formatting</h3>
+          <ul>
+            <li>Re-run parent-child unit tests and CSV export tests.</li>
+            <li>Validate integration export artifacts.</li>
+          </ul>
+        </div>
+      </section>
+
+      <footer class="card muted">
+        <p>
+          This document is intentionally backend/API-centric and should be updated whenever execution
+          semantics, config contracts, or endpoint behavior changes.
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>

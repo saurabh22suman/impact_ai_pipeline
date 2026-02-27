@@ -1,0 +1,22 @@
+{
+  "notices": [],
+  "run": {
+    "run_id": "run-000014",
+    "status": "completed",
+    "created_at": "2026-02-26T17:44:07.565539529Z",
+    "started_at": "2026-02-26T17:44:07.565539529Z",
+    "finished_at": "2026-02-26T17:44:21.910465209Z",
+    "config_version": "2026-02-22+2026-02-22+2026-02-22+2026-02-22+2026-02-22+2026-02-22",
+    "profile": "high_recall",
+    "events": [],
+    "feature_rows": [],
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "estimated_cost_usd": 0,
+    "artifact_counts": {
+      "articles_deduped": 8,
+      "articles_total": 8,
+      "events_output": 0
+    }
+  }
+}

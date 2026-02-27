@@ -1,0 +1,15 @@
+Historical NiftyIT Run Summary
+
+Date range: 2024-01-01T00:00:00Z -> 2025-12-31T23:59:59Z
+Sources selected: 16
+
+[all_entities] run_id=run-000012 events_output=8 articles_total=8 deduped=8
+  observed_niftyit10_symbols=[]
+  missing_niftyit10_symbols=['COFORGE', 'HCLTECH', 'INFY', 'LTIM', 'MPHASIS', 'OFSS', 'PERSISTENT', 'TCS', 'TECHM', 'WIPRO']
+[niftyit10] run_id=run-000013 events_output=0 articles_total=8 deduped=8
+  observed_niftyit10_symbols=[]
+  missing_niftyit10_symbols=['COFORGE', 'HCLTECH', 'INFY', 'LTIM', 'MPHASIS', 'OFSS', 'PERSISTENT', 'TCS', 'TECHM', 'WIPRO']
+[niftyit_index] run_id=run-000014 events_output=0 articles_total=8 deduped=8
+
+Coverage all_entities has all 10: False
+Coverage niftyit10 filter has all 10: False

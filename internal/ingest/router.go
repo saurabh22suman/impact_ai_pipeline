@@ -15,12 +15,14 @@ type SourceFetcher interface {
 type RouterFetcher struct {
 	rssFetcher    SourceFetcher
 	directFetcher SourceFetcher
+	pulseFetcher  SourceFetcher
 }
 
-func NewRouterFetcher(rssFetcher, directFetcher SourceFetcher) *RouterFetcher {
+func NewRouterFetcher(rssFetcher, directFetcher, pulseFetcher SourceFetcher) *RouterFetcher {
 	return &RouterFetcher{
 		rssFetcher:    rssFetcher,
 		directFetcher: directFetcher,
+		pulseFetcher:  pulseFetcher,
 	}
 }
 
@@ -61,6 +63,12 @@ func (r *RouterFetcher) FetchWithNotices(ctx context.Context, source config.Sour
 			return nil, nil, fmt.Errorf("direct fetcher is nil")
 		}
 		articles, err := r.directFetcher.Fetch(ctx, source)
+		return articles, nil, err
+	case config.SourceKindPulse:
+		if r.pulseFetcher == nil {
+			return nil, nil, fmt.Errorf("pulse fetcher is nil")
+		}
+		articles, err := r.pulseFetcher.Fetch(ctx, source)
 		return articles, nil, err
 	default:
 		return nil, nil, fmt.Errorf("unsupported source kind %q", source.Kind)

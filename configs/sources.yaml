@@ -40,6 +40,46 @@ sources:
       language: en
       enabled: true
       crawl_fallback: true
+    - id: et-information-technology
+      name: Economic Times Information Technology
+      kind: rss
+      url: https://economictimes.indiatimes.com/tech/information-tech/rssfeeds/78570530.cms
+      region: india
+      language: en
+      enabled: true
+      crawl_fallback: true
+    - id: et-stocks
+      name: Economic Times Stocks
+      kind: rss
+      url: https://economictimes.indiatimes.com/markets/stocks/rssfeeds/2146842.cms
+      region: india
+      language: en
+      enabled: true
+      crawl_fallback: true
+    - id: livemint-markets
+      name: Livemint Markets
+      kind: rss
+      url: https://www.livemint.com/rss/markets
+      region: india
+      language: en
+      enabled: true
+      crawl_fallback: true
+    - id: livemint-technology
+      name: Livemint Technology
+      kind: rss
+      url: https://www.livemint.com/rss/technology
+      region: india
+      language: en
+      enabled: true
+      crawl_fallback: true
+    - id: indian-express-business
+      name: Indian Express Business
+      kind: rss
+      url: https://indianexpress.com/section/business/feed/
+      region: india
+      language: en
+      enabled: true
+      crawl_fallback: true
     - id: nyt-business
       name: NYT Business
       kind: rss
@@ -77,6 +117,14 @@ sources:
       kind: rss
       url: https://feeds.marketwatch.com/marketwatch/topstories/
       region: us
+      language: en
+      enabled: true
+      crawl_fallback: false
+    - id: zerodha-pulse
+      name: Zerodha Pulse
+      kind: pulse
+      url: https://pulse.zerodha.com/
+      region: india
       language: en
       enabled: true
       crawl_fallback: false
